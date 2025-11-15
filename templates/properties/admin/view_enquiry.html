@@ -1,0 +1,39 @@
+{% extends 'properties/admin_base.html' %}
+{% block body %}
+<div class="container mt-4">
+  <h3>View Enquiry</h3>
+  <div class="card p-3">
+    <p><strong>Buyer Name:</strong> {{ enquiry.name }}</p>
+    <p><strong>Phone:</strong> {{ enquiry.phone }}</p>
+    <p><strong>Buyer Type:</strong> {{ enquiry.buyer_type|capfirst }}</p>
+    <p><strong>Property:</strong> <a href="{% url 'property_detail' enquiry.property.id %}">{{ enquiry.property.property_type|capfirst }}</a></p>
+    <p><strong>Property For:</strong> {{ enquiry.property.deal_type }}</p>
+    <p><strong>Address:</strong> {{ enquiry.property.locality.name }}</p>
+    <p><strong>City:</strong> {{ enquiry.property.locality.city.name }}</p>
+    <p><strong>Property Owner:</strong> {{ enquiry.property.owner.username }}</p>
+    <p><strong>Message:</strong> {{ enquiry.message }}</p>
+    <p><strong>Sent At:</strong> {{ enquiry.created_at|date:"d M Y H:i" }}</p>
+    <p><strong>Owner Replied:</strong>
+      {% if enquiry.owner_replied %}
+        <span class="badge bg-success">Yes</span>
+      {% else %}
+        <span class="badge bg-warning">No</span>
+      {% endif %}
+    </p>
+
+    {% if enquiry.owner_replied %}
+      <hr>
+      <p><strong>Owner Reply:</strong> {{ enquiry.reply_message }}</p>
+      <p><strong>Replied At:</strong> {{ enquiry.replied_at|date:"d M Y H:i" }}</p>
+    {% else %}
+      <hr>
+      <p class="text-muted">Owner has not replied yet.</p>
+      <form method="post" action="{%url 'remind_owner' enquiry.id%}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-warning btn-sm " style="width: 180px;">Send Reminder to Owner</button>
+      </form>
+    {% endif %}
+  </div>
+  <a href="{% url 'manage_enquiries' %}" class="btn btn-secondary mt-3">Back to Enquiries</a>
+</div>
+{% endblock %}

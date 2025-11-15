@@ -1,0 +1,67 @@
+Essential Features for Real Estate Admin Panel
+1. User Management
+
+View all registered users (buyers, sellers, agents).
+
+Add/Edit/Delete users (if applicable).
+
+Manage user roles and permissions (e.g., admin, agent, customer).
+
+Activate/Deactivate users or reset passwords.
+
+2. Property Listings Management
+
+Add new property listings.
+
+Edit or delete existing listings.
+
+Approve or reject property submissions (if users can add properties).
+
+Manage property status (available, sold, rented, etc.).
+
+Bulk upload or update properties (optional).
+
+Upload and manage property images.
+
+3. Category and Location Management
+
+Manage property types (e.g., apartment, villa, office).
+
+Manage locations/cities/areas/neighborhoods.
+
+Manage amenities/features (e.g., parking, pool, garden).
+
+4. Dashboard / Analytics
+
+Overview stats: total properties, active listings, users, sales.
+
+Recent activities or submissions.
+
+Sales or rental statistics (if applicable).
+
+Notifications or alerts for new submissions or pending approvals.
+
+5. Inquiry / Contact Management
+
+View messages or inquiries from potential buyers/renters.
+
+Respond or assign inquiries to agents.
+
+Track inquiry status.
+
+6. Authentication & Authorization
+
+Secure login/logout for admin.
+
+Password reset, 2FA (optional).
+
+Role-based access control for different admin roles.
+
+@role_required(['agent', 'buyer', 'seller'])
+def client_dashboard(request):
+    ...
+Django==4.2
+pandas
+scikit-learn
+xgboost
+joblib

@@ -1,0 +1,538 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <!-- Bootstrap CSS -->
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+<link href="{% static 'properties/main_css/bootstrap.min.css' %}" rel="stylesheet">
+<link href="{% static 'properties/main_css/bootstrap-icons.min.css' %}" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'properties/main_css/style.css' %}" />
+
+
+
+   
+      <title>
+
+        {% block title %}{% endblock title %}
+      </title>
+      
+   
+<style>
+    
+      {% block style %}{% endblock style %}</style>
+    
+  </head>
+
+  <body>
+   <div style="display:none">{% csrf_token %}</div>
+
+    <div class="header">
+<nav class="navbar navbar-expand-lg navbar-light sticky-top bg-white shadow-sm py-2">
+  <div class="container-fluid">
+
+    <!-- Logo -->
+    <a class="navbar-brand" href="{% url 'index' %}">
+      <img src="{% static 'properties/images/nestlylogo1.png' %}" alt="Real Estate Logo"  class="logo">
+
+    </a>
+
+    <!-- Mobile Toggler -->
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+      aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Navbar Links -->
+    <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+      <ul class="navbar-nav align-items-center">
+
+        <!-- Navigation Links -->
+        <li class="nav-item">
+          <a class="nav-link {% if request.resolver_match.url_name == 'index' %}active{% endif %}" href="{% url 'index' %}">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}" href="{% url 'about' %}">About</a>
+        </li>
+
+        {% if user.is_authenticated %}
+        <!-- Notification Bell -->
+        <li class="nav-item dropdown me-2">
+          <a class="nav-link position-relative" href="#" id="notifDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-bell fs-5"></i>
+            {% if unread_count > 0 %}
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+              {{ unread_count }}
+            </span>
+            {% endif %}
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end p-0" aria-labelledby="notifDropdown" style="min-width: 280px; max-height: 350px; overflow-y: auto;">
+            <li class="dropdown-header text-center fw-bold">Notifications</li>
+            <li><hr class="dropdown-divider"></li>
+            {% for notif in unread_notifications %}
+              <li class="d-flex justify-content-between align-items-start">
+                <a class="dropdown-item text-truncate" href="{% url 'mark_notification_read' notif.id %}" style="max-width: 200px;">
+                  {{ notif.message|truncatechars:50 }}
+                </a>
+                <small class="text-muted ms-2">{{ notif.created_at|timesince }} ago</small>
+              </li>
+            {% empty %}
+              <li class="dropdown-item text-center text-muted">No new notifications</li>
+            {% endfor %}
+            <li><hr class="dropdown-divider"></li>
+            <li class="text-center">
+              <a class="dropdown-item small" href="{% url 'notifications_page' %}">View all notifications</a>
+            </li>
+          </ul>
+        </li>
+
+        <!-- User Dropdown -->
+        <li class="nav-item dropdown me-2">
+          <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Hi, {{ user.first_name|default:user.username }}
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown" style="min-width:200px;">
+            <li class="dropdown-header text-center fw-bold">{{ user.first_name|default:user.username }}</li>
+            <li class="text-muted text-center">{{ user.profile.role|capfirst }}</li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" href="{% url 'activity_page' %}">My Activity</a></li>
+            <li><a class="dropdown-item" href="{% url 'manage_properties' %}">Manage Properties</a></li>
+            <li><a class="dropdown-item" href="{% url 'post_property' %}">Post Property</a></li>
+            <li><a class="dropdown-item" href="{% url 'update_profile' %}">MY Profile</a></li>
+            <li><a class="dropdown-item" href="{% url 'change_password_view' %}">Change Password</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item text-danger" href="{% url 'user_logout' %}">Logout</a></li>
+          </ul>
+        </li>
+
+        {% else %}
+        <!-- Login for guests -->
+        <li class="nav-item">
+          <a class="nav-link {% if request.resolver_match.url_name == 'login' %}active{% endif %} " href="#" data-bs-toggle="modal" data-bs-target="#authModalNamespace">Login</a>
+        </li>
+        {% endif %}
+
+        <!-- Post Property Button -->
+<li class="nav-item ms-2">
+  <button type="button" 
+          id="postPropertyBtn" 
+          class="btn btn-primary btn-sm"
+          data-authenticated="{% if request.user.is_authenticated %}true{% else %}false{% endif %}"
+          {% if request.user.is_authenticated %}
+            data-post-url="{% url 'post_property' %}"
+          {% endif %}>
+    Post Property
+  </button>
+</li>
+
+
+
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- Auth Modal -->
+<!-- Auth Modal -->
+<div class="modal fade" id="authModalNamespace" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content auth-modal-content">
+
+      <!-- Modal Header -->
+      <div class="auth-modal-header">
+        <h5 class="auth-modal-title" id="authModalLabelNamespace">Login</h5>
+        <button type="button" class="btn-close auth-modal-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="auth-modal-body">
+        <div class="auth-forms-container">
+
+          <!-- Login Form -->
+          <div id="authLoginForm" class="auth-form">
+            <form method="POST" action="{% url 'user_login' %}">
+              {% csrf_token %}
+              <div class="auth-form-group">
+                <i class="bi bi-envelope auth-input-icon"></i>
+                <input type="text" class="auth-input" name="identifier" placeholder="Email or Mobile" required>
+              </div>
+              <div class="auth-form-group">
+                <i class="bi bi-lock auth-input-icon"></i>
+                <input type="password" class="auth-input" name="password" placeholder="Password" required>
+              </div>
+              <button type="submit" class="auth-btn auth-btn-login">Login</button>
+              <button type="button" id="otpLoginBtn" class="auth-btn auth-btn-otp mt-2">Login with OTP</button>
+            </form>
+            <p class="auth-form-switch">
+              Don’t have an account? 
+              <a href="#" id="authShowSignup" class="auth-switch-link">Sign Up</a>
+            </p>
+            <p class="auth-form-switch">
+              <a href="#" id="authShowForgotPassword">Forgot Password?</a>
+
+            </p>
+          </div>
+
+          <!-- Signup Form -->
+          <div id="authSignupForm" class="auth-form" style="display:none;">
+            <form method="POST" action="{% url 'user_signup' %}">
+              {% csrf_token %}
+              <div class="auth-form-group">
+                <i class="bi bi-person auth-input-icon"></i>
+                <input type="text" class="auth-input" name="full_name" placeholder="Full Name" required>
+              </div>
+              <div class="auth-form-group">
+                <i class="bi bi-envelope auth-input-icon"></i>
+                <input type="email" class="auth-input" name="email" placeholder="Email" required>
+              </div>
+              <div class="auth-form-group">
+                <i class="bi bi-telephone auth-input-icon"></i>
+                <input type="text" class="auth-input" name="phone" placeholder="Mobile" required>
+              </div>
+              <div class="auth-form-group">
+                <i class="bi bi-lock auth-input-icon"></i>
+                <input type="password" class="auth-input" name="password1" placeholder="Password" required>
+              </div>
+              <div class="auth-form-group">
+                <i class="bi bi-lock-fill auth-input-icon"></i>
+                <input type="password" class="auth-input" name="password2" placeholder="Confirm Password" required>
+              </div>
+              <button type="submit" class="auth-btn auth-btn-signup">Sign Up</button>
+            </form>
+            <p class="auth-form-switch">
+              Already have an account? 
+              <a href="#" id="authShowLogin" class="auth-switch-link">Login</a>
+            </p>
+          </div>
+
+<!-- OTP Login Form -->
+<div id="authOtpForm" class="auth-form" style="display:none;">
+  <form id="otpSendForm">
+      {% csrf_token %}
+      <div class="auth-form-group">
+          <i class="bi bi-envelope auth-input-icon"></i>
+          <input type="text" class="auth-input" name="identifier" placeholder="Email or Mobile" required>
+      </div>
+      <button type="submit" class="auth-btn auth-btn-otp">Send OTP</button>
+  </form>
+
+  <form id="otpVerifyForm" style="display:none;">
+      {% csrf_token %}
+      <input type="hidden" name="identifier" id="otpIdentifier">
+      <div class="auth-form-group">
+          <i class="bi bi-key auth-input-icon"></i>
+          <input type="text" class="auth-input" name="otp" placeholder="Enter OTP" required>
+      </div>
+      <button type="submit" class="auth-btn auth-btn-otp-verify">Verify OTP</button>
+  </form>
+</div>
+<!-- Forgot Password Form -->
+<div id="authForgotPasswordForm" class="auth-form" style="display:none;">
+  <!-- Step 1: Enter email -->
+  <form id="forgotPasswordSendForm">
+      {% csrf_token %}
+      <div class="auth-form-group">
+          <i class="bi bi-envelope auth-input-icon"></i>
+          <input type="email" class="auth-input" name="identifier" placeholder="Enter your email" required>
+      </div>
+      <button type="submit" class="auth-btn">Send OTP</button>
+  </form>
+
+  <!-- Step 2: Verify OTP and Reset Password -->
+  <form id="forgotPasswordVerifyForm" style="display:none;">
+      {% csrf_token %}
+      <input type="hidden" id="resetOtpIdentifier">
+      <div class="auth-form-group">
+          <i class="bi bi-key auth-input-icon"></i>
+          <input type="text" class="auth-input" name="otp" placeholder="Enter OTP" required>
+      </div>
+      <div class="auth-form-group">
+          <i class="bi bi-lock auth-input-icon"></i>
+          <input type="password" class="auth-input" name="new_password" placeholder="New Password" required>
+      </div>
+      <button type="submit" class="auth-btn">Reset Password</button>
+  </form>
+
+  <p class="auth-form-switch">
+      <a href="#" id="authShowLoginFromForgot" class="auth-switch-link">Back to Login</a>
+  </p>
+</div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{% comment %} modal for post Property {% endcomment %}
+<!-- Plan Modal -->
+<div class="modal fade" id="planModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content p-4">
+
+      <div class="modal-header border-0 pb-0">
+        <h4 class="modal-title fw-bold">Choose Your Plan</h4>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <p class="text-muted mb-4">Unlock all features: post properties, View Buyer's Detail, reply to buyers. Pick a plan that suits you.</p>
+
+        <div class="row g-3">
+          <!-- Plan 1 -->
+          <div class="col-md-3">
+            <div class="plan-card">
+              <div class="plan-header text-primary">1 Month</div>
+              <div class="plan-price">₹499</div>
+              <ul class="plan-features">
+                <li>Post up to 5 properties</li>
+                <li>View Buyer's Detail</li>
+                <li>Reply to inquiries</li>
+              </ul>
+              <button class=" planx-btn  planx-btn-basic" data-plan-duration="1">Buy Now</button>
+            </div>
+          </div>
+
+          <!-- Plan 2 - Popular -->
+          <div class="col-md-3">
+            <div class="plan-card plan-popular">
+              <div class="badge-popular">Most Popular</div>
+              <div class="plan-header text-success">3 Months</div>
+              <div class="plan-price">₹1,299</div>
+              <ul class="plan-features">
+                <li>Post up to 20 properties</li>
+                <li>View Buyer's Detail</li>
+                <li>Reply to inquiries</li>
+              </ul>
+              <button class=" planx-btn  planx-btn-basic" data-plan-duration="3">Buy Now</button>
+            </div>
+          </div>
+
+          <!-- Plan 3 -->
+          <div class="col-md-3">
+            <div class="plan-card">
+              <div class="plan-header text-warning">6 Months</div>
+              <div class="plan-price">₹2,499</div>
+              <ul class="plan-features">
+                <li>Post unlimited properties</li>
+                <li>View Buyer's Detail</li>
+                <li>Reply to inquiries</li>
+              </ul>
+              <button class=" planx-btn  planx-btn-basic" data-plan-duration="6">Buy Now</button>
+            </div>
+          </div>
+
+          <!-- Plan 4 -->
+          <div class="col-md-3">
+            <div class="plan-card">
+              <div class="plan-header text-danger">12 Months</div>
+              <div class="plan-price">₹4,499</div>
+              <ul class="plan-features">
+                <li>Post unlimited properties</li>
+                <li>View Buyer's Detail</li>
+                <li>Reply to inquiries</li>
+                <li>Priority support</li>
+              </ul>
+              <button class="planx-btn  planx-btn-basic" data-plan-duration="12">Buy Now</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+    {% comment %} message modal {% endcomment %}
+{% if messages %}
+<div class="position-fixed top-0 end-0 p-3" style="z-index: 1050;">
+    {% for message in messages %}
+        <div class="toast align-items-center text-bg-{{ message.tags }} border-0 show mb-2" role="alert">
+            <div class="d-flex">
+                <div class="toast-body">{{ message }}</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+
+
+
+
+{% comment %} cgange pass {% endcomment %}
+<!-- Change Password Modal -->
+
+
+     {% block body %}
+      
+    {% endblock %}
+    
+
+    <!-- footer start here -->
+    <footer class="foot">
+      <div class="container">
+        <div class="row">
+          <!-- About -->
+          <div class="col-md-3 col-sm-6 mb-4">
+            <h5>About Us</h5>
+            <p>Your trusted real estate partner for buying, selling & renting properties.</p>
+          </div>
+
+          <!-- Quick Links -->
+          <div class="col-md-3 col-sm-6 mb-4">
+            <h5>Quick Links</h5>
+            <ul class="textc">
+              <li>
+                <a href="" class="text-white text-decoration-none">Buy</a>
+              </li>
+              <li>
+                <a href="#" class="text-white text-decoration-none">Rent</a>
+              </li>
+              <li>
+                <a href="#" class="text-white text-decoration-none">Sell</a>
+              </li>
+              <li>
+                <a href="{%url 'post_property' %}" class="text-white text-decoration-none">Post Property</a>
+              </li>
+              <li>
+                <a href="{%url 'contact'%}" class="text-white text-decoration-none">Contact</a>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Legal & Support -->
+          <div class="col-md-3 col-sm-6 mb-4 legal-support">
+            <h5>Legal & Support</h5>
+            <ul class="list-unstyled">
+              <li>
+                <a href="{% url 'terms' %}" class="texc text-decoration-none">Terms & Conditions</a>
+              </li>
+              <li>
+                <a href="{%url 'privacypolicy'%}" class="text-decoration-none">Privacy Policy</a>
+              </li>
+              <li>
+                <a href="{% url 'testimonials' %}" class="text-decoration-none">Testimonials</a>
+              </li>
+              <li>
+                <a href="#" class="text-decoration-none">Sitemap</a>
+              </li>
+              <li>
+                <a href="{% url 'faq' %}" class="text-decoration-none">FAQs</a>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Contact & Social -->
+          <div class="col-md-3 col-sm-6 mb-4">
+            <h5>Contact Us</h5>
+            <p>Email: info@yourNestly.com</p>
+            <p>Phone: +1 234 567 8900</p>
+            <p>Address: 123 Nestly St, City, Country</p>
+
+            <h5 class="mt-4">Follow Us</h5>
+            <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer" class="me-2 text-blue fs-4 icon-facebook social-link"><i class="bi bi-facebook"></i></a>
+            <a href="https://www.twitter.com/" target="_blank" rel="noopener noreferrer" class="me-2 fs-4 icon-twitter social-link"><i class="bi bi-twitter"></i></a>
+            <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer" class="me-2 fs-4 icon-instagram social-link"><i class="bi bi-instagram"></i></a>
+            <a href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer" class="me-2 text-darrk bg-red fs-4 icon-youtube social-link"><i class="bi bi-youtube"></i></a>
+
+            <hr />
+
+            <h6 class="dwnld">Download Our App</h6>
+            <a href="#" class="btn btn-outline-light btn-sm me-2 "><i class="bi bi-google-play"></i> Google Play</a>
+            <a href="#" class="btn btn-outline-light btn-sm me-2"><i class="bi bi-apple"></i> App Store</a>
+          </div>
+        </div>
+
+        <hr />
+        <div class="text-center footer-padding" style="padding: 20px ";> &copy; 2025 Nestly. All rights reserved.</div>
+      </div>
+    </footer>
+
+   
+  <!-- base.html, inside <head> or right before </body> -->
+<script>
+  // Declare csrfToken only if it doesn't exist yet
+  if (typeof csrfToken === "undefined") {
+    const csrfToken = "{{ csrf_token }}";
+    window.csrfToken = csrfToken; // Make it globally accessible
+  }
+  
+</script>
+{% comment %} <script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const postBtn = document.getElementById("postPropertyBtn");
+
+    if (!postBtn) return;
+
+    postBtn.addEventListener("click", function(event) {
+        event.preventDefault();
+
+        if (isAuthenticated) {
+            // Call API to check if user can post
+            fetch("/api/check_post_eligibility/")  // you need to create this endpoint in Django
+            .then(response => response.json())
+            .then(data => {
+                if (data.can_post) {
+                    // User can post → redirect
+                    window.location.href = postBtn.dataset.postUrl;
+                } else {
+                    // User reached free limit → show plan modal
+                    const planModal = new bootstrap.Modal(document.getElementById('planModal'));
+                    planModal.show();
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Error checking post eligibility. Please try again.");
+            });
+        } else {
+            // Not logged in → show login modal
+            const loginModal = document.getElementById("authLoginModal");
+            if (loginModal) {
+                const modal = new bootstrap.Modal(loginModal);
+                modal.show();
+            } else {
+                window.location.href = "/accounts/login/?next=/post-property/";
+            }
+        }
+    });
+});
+
+</script> {% endcomment %}
+
+
+     <script src="{% static 'properties/main_js/jquery-3.7.1.js' %}"></script>
+    <!-- JS -->
+<script src="{% static 'properties/main_js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'properties/main_js/main.js' %}"></script>
+<script src="{% static 'properties/main_js/post_property.js' %}"></script>
+    <script>
+    const urls = {
+        sendOtp: "{% url 'send_login_otp' %}",
+        verifyOtp: "{% url 'verify_login_otp' %}"
+    };
+ 
+</script>
+<script>
+  // Pass authentication status to JS
+  const isAuthenticated = {{ request.user.is_authenticated|yesno:"true,false" }};
+</script>
+
+ <script src="{% static 'properties/main_js/auth.js' %}"></script>
+ <!-- Pass auth status to JS -->
+
+  {% block js %}{% endblock %}
+ 
+  </body>
+</html>

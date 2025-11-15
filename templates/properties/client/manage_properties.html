@@ -1,0 +1,155 @@
+{% extends 'properties/base.html' %}
+{% load static %}
+{% block style %}
+  <link href="{% static 'properties/main_css/bootstrap.min.css' %}" rel="stylesheet" />
+  <link rel="stylesheet" href="{% static 'properties/main_css/style.css' %}" />
+{% endblock %}
+
+{% block body %}
+  <form style="display:none;">
+    {% csrf_token %}
+  </form>
+
+  <div class="container mt-4">
+    <h3 class="mb-3">Manage My Properties</h3>
+
+    {% if properties %}
+      <table class="table table-striped align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>No.</th>
+            <th>City</th>
+            <th>Price</th>
+            <th>Status</th>
+            <th>Availability</th>
+            <th>Updated On</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for property in properties %}
+            <tr id="property-{{ property.id }}">
+              <td>{{ forloop.counter }}</td>
+              <td>{{ property.locality.city.name }}</td>
+              <td>₹{{ property.price }}</td>
+              <td>{{ property.status|title }}</td>
+
+              <!-- Availability Badge -->
+              <td>
+                <span class="badge 
+                  {% if property.availability == 'available' %}
+                     bg-success 
+
+                  {% elif property.availability == 'rented' %}
+                     bg-warning text-dark 
+
+                  {% elif property.availability == 'sold' %}
+                     bg-danger
+                  {% endif %}">
+                  {{ property.availability|title }}
+                </span>
+              </td>
+
+              <td>{{ property.updated_on|date:'M d, Y' }}</td>
+
+              <!-- Actions -->
+              <td>
+                <div class="btn-group">
+                  <button class="btn btn-sm btn-outline-primary dropdown-toggle action" type="button" data-bs-toggle="dropdown" aria-expanded="false">Manage</button>
+                  <ul class="dropdown-menu">
+                    <li>
+                      <a href="#" class="dropdown-item update-availability" data-id="{{ property.id }}" data-status="available">✅ Mark as Available</a>
+                    </li>
+                    <li>
+                      <a href="#" class="dropdown-item update-availability" data-id="{{ property.id }}" data-status="rented">🏠 Mark as Rented</a>
+                    </li>
+                    <li>
+                      <a href="#" class="dropdown-item update-availability" data-id="{{ property.id }}" data-status="sold">🔴 Mark as Sold</a>
+                    </li>
+
+                    <li>
+                      <a href="#" class="dropdown-item text-danger delete-btn" data-id="{{ property.id }}">🗑️ Delete Property</a>
+                    </li>
+                  </ul>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div class="alert alert-info">You haven’t posted any properties yet.</div>
+    {% endif %}
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <!-- Delete Confirmation Modal -->
+  <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Confirm Delete</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">Are you sure you want to delete this property?</div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button class="btn btn-danger" id="confirmDelete">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- hidden csrf to ensure cookie exists -->
+  <form style="display:none;">
+    {% csrf_token %}
+  </form>
+{% endblock %}
+
+{% block js %}
+  {% comment %} <script src="{% static 'properties/main_js/bootstrap.bundle.min.js' %}"></script>
+  <script src="{% static 'properties/main_js/main.js' %}"></script> {% endcomment %}
+  {{ block.super }}
+  {% comment %} <script>
+    document.addEventListener("DOMContentLoaded", function () {
+  let deleteId = null;
+
+  // Open modal
+  document.querySelectorAll(".prop_del").forEach(btn => {
+    btn.addEventListener("click", function () {
+      deleteId = this.dataset.id;
+      const modal = new bootstrap.Modal(document.getElementById("deleteModal"));
+      modal.show();
+    });
+  });
+
+  // Confirm delete
+  document.getElementById("confirmDelete").addEventListener("click", function () {
+    if (!deleteId) return;
+
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    fetch(`/delete-property/${deleteId}/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrfToken,   // ✅ critical for Django
+        "X-Requested-With": "XMLHttpRequest",
+      },
+      body: JSON.stringify({})  // Django needs some body for POST
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        document.getElementById(`property-${deleteId}`).remove();
+        bootstrap.Modal.getInstance(document.getElementById("deleteModal")).hide();
+      } else {
+        alert("❌ Failed to delete property.");
+      }
+    })
+    .catch(err => console.error("Delete error:", err));
+  });
+});
+
+  </script> {% endcomment %}
+{% endblock %}

@@ -1,0 +1,8 @@
+{% extends "properties/base.html" %}
+{% block body %}
+<div class="container text-center mt-5">
+    <h2 class="text-success">🎉 Property Submitted Successfully!</h2>
+    <p>Your property is under review. You will receive an email notification once it is approved.</p>
+    <a href="{% url 'index' %}" class="btn btn-primary mt-3">Go Back to Home</a>
+</div>
+{% endblock %}

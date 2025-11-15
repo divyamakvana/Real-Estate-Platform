@@ -1,0 +1,194 @@
+{% extends "properties/admin_base.html" %}
+{% load static %}
+
+{% block title %}Admin Dashboard{% endblock %}
+{% block header %}Dashboard{% endblock %}
+{% block style %}
+
+   <link href="{% static 'properties/main_css/bootstrap.min.css' %}" rel="stylesheet">
+<link href="{% static 'properties/main_css/bootstrap-icons.min.css' %}" rel="stylesheet">
+  <link href="{% static 'properties/main_css/admin.css' %}" rel="stylesheet">
+{% endblock style %}
+
+{% block body %}
+<div class="container-fluid dashboard-wrapper">
+
+  <!-- Welcome -->
+  <div class="mb-4">
+    <h3 class="fw-bold">Welcome back, {{ request.user.username }} </h3>
+    <p class="text-muted">Here’s a quick overview of your system:</p>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="row g-4">
+    <div class="col-md-3">
+      <div class="kpi-card shadow-sm">
+        <div class="kpi-icon bg-primary"><i class="fas fa-users"></i></div>
+        <div>
+          <h6>Total Users</h6>
+          <h3>{{ total_user }}</h3>
+          <span class="text-muted">Active accounts</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="kpi-card shadow-sm">
+        <div class="kpi-icon bg-success"><i class="fas fa-building"></i></div>
+        <div>
+          <h6>Total Properties</h6>
+          <h3>{{ total_properties }}</h3>
+          <span class="text-muted">Currently listed</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="kpi-card shadow-sm">
+        <div class="kpi-icon bg-warning"><i class="fas fa-envelope"></i></div>
+        <div>
+          <h6>Total Enquiries</h6>
+          <h3>{{ total_enquiries }}</h3>
+          <span class="text-muted">Messages received</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <a href="{% url 'pending_approvals' %}" class="text-decoration-none text-dark">
+        <div class="kpi-card shadow-sm">
+          <div class="kpi-icon bg-danger"><i class="fas fa-check-circle"></i></div>
+          <div>
+            <h6>Pending Approvals</h6>
+            <h3>{{ pending_approvals }}</h3>
+            <span class="text-muted">{{ pending_users }} users, {{ pending_properties }} properties</span>
+          </div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="row g-4 mt-4">
+    <div class="col-md-3">
+      <a href="{% url 'manage_property' %}" class="quick-action-card shadow-sm text-decoration-none">
+        <i class="fas fa-building"></i>
+        <span>Manage Properties</span>
+      </a>
+    </div>
+    <div class="col-md-3">
+      <a href="{% url 'manage_users' %}" class="quick-action-card shadow-sm text-decoration-none">
+        <i class="fas fa-users"></i>
+        <span>Manage Users</span>
+      </a>
+    </div>
+    <div class="col-md-3">
+      <a href="{% url 'manage_reviews' %}" class="quick-action-card shadow-sm text-decoration-none">
+        <i class="fas fa-star"></i>
+        <span>Manage Reviews</span>
+      </a>
+    </div>
+    <div class="col-md-3">
+      <a href="{% url 'manage_enquiries' %}" class="quick-action-card shadow-sm text-decoration-none">
+        <i class="fas fa-envelope"></i>
+        <span>Manage Enquiries</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Charts -->
+  <div class="row g-4 mt-4">
+    <div class="col-md-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <h6 class="fw-bold mb-3">📈 User Growth</h6>
+          <canvas id="userChart"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <h6 class="fw-bold mb-3">📊 Enquiries per Month</h6>
+          <canvas id="enquiryChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Activity -->
+  <div class="row g-4 mt-4">
+    <div class="col-md-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <h6 class="fw-bold mb-3">🏠 Recent Properties</h6>
+          <table class="table table-hover align-middle">
+            <thead class="table-light">
+              <tr><th>Address</th><th>City</th></tr>
+            </thead>
+            <tbody>
+              {% for property in recent_properties %}
+                <tr><td>{{ property.locality.name }}</td><td>{{ property.locality.city.name }}</td></tr>
+              {% empty %}
+                <tr><td colspan="2" class="text-muted">No properties found</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <h6 class="fw-bold mb-3">✉️ Recent Enquiries</h6>
+          <table class="table table-hover align-middle">
+            <thead class="table-light">
+              <tr><th>User</th><th>Property</th><th>Date</th></tr>
+            </thead>
+            <tbody>
+              {% for enquiry in recent_enquiries %}
+                <tr>
+                  <td>{{ enquiry.name}}</td>
+                  <td>{{ enquiry.property.locality }}</td>
+                  <td>{{ enquiry.created_at|date:"Y-m-d" }}</td>
+                </tr>
+              {% empty %}
+                <tr><td colspan="3" class="text-muted">No enquiries yet</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+
+
+
+
+
+{% endblock %}
+
+{% block js %}
+
+
+<!-- JSON Data -->
+<script id="user-months" type="application/json">
+  {{ user_growth_months|safe }}
+</script>
+<script id="user-data" type="application/json">
+  {{ user_growth_data|safe }}
+</script>
+<script id="enquiry-data" type="application/json">
+  {"months": {{ enquiry_months|safe }}, "counts": {{ enquiry_counts|safe }} }
+</script>
+
+
+
+
+<script src="{% static 'properties/main_js/chart.umd.min.js' %}"></script>
+
+{% endblock js %}

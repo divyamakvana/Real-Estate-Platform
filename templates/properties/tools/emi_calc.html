@@ -1,0 +1,58 @@
+{% extends "properties/base.html" %}
+{% load static %}
+{% block style %}
+
+  <link href="{% static 'properties/main_css/bootstrap.min.css' %}" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'properties/main_css/style.css' %}" />
+
+{% endblock style %}
+{% block body %}
+  <!-- Hero -->
+   <div>
+   <div class="container">
+<section class="emi-hero">
+    <h1>EMI Calculator</h1>
+    <p>Calculate your EMI and learn more about loans</p>
+</section>
+
+<!-- Tabs -->
+<div class="emi-tab-container">
+    <div class="emi-tab" onclick="scrollToSection('emiCalculatorSection')">Calculate EMI</div>
+    <div class="emi-tab" onclick="scrollToSection('emiFaqSection')">FAQs</div>
+</div>
+
+<!-- EMI Section -->
+<section class="emi-section" id="emiCalculatorSection">
+    <h2>Calculate Your EMI</h2>
+    <div class="emi-form">
+        <label>Loan Amount (₹)</label>
+        <input type="number" id="emiLoanAmount" placeholder="500000">
+
+        <label>Annual Interest Rate (%)</label>
+        <input type="number" id="emiInterestRate" placeholder="7.5" step="0.01">
+
+        <label>Tenure (Years)</label>
+        <input type="number" id="emiTenure" placeholder="5">
+
+        <button onclick="calculateEmi()">Calculate EMI</button>
+
+        <div class="emi-result" id="emiResultDisplay"></div>
+    </div>
+</section>
+        </button>
+        <div class="faq-answer">
+            <p>{{ faq.answer }}</p>
+        </div>
+    </div>
+    {% empty %}
+        <p>No FAQs available yet.</p>
+    {% endfor %}
+</div>mdn
+
+{% endblock body %}
+{% block js %}
+<script src="{% static 'properties/main_js/bootstrap.bundle.min.js' %}"></script>
+  <script src="{% static 'properties/main_js/main.js' %}"></script>
+  <script src="{% static 'properties/main_js/emi.js' %}"></script>
+{% endblock js %}
+

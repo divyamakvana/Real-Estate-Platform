@@ -1,0 +1,86 @@
+{% extends 'properties/base.html' %}
+{% load static %}
+{% block style %}
+  <link href="{% static 'properties/main_css/bootstrap.min.css' %}" rel="stylesheet" />
+  <link rel="stylesheet" href="{% static 'properties/main_css/style.css' %}" />
+{% endblock %}
+{% block body %}
+  <!-- Hero -->
+  <section class="emi-hero">
+    <h2 class="text-white">Loan Eligibility Calculator for your borrowing capacity</h2>
+  </section>
+
+  <!-- Tabs -->
+  <div class="emi-tab-container">
+    <div class="emi-tab" onclick="scrollToSection('emiCalculatorSection')">Loan Eligibility</div>
+    <div class="emi-tab" onclick="scrollToSection('emiFaqSection')">FAQs</div>
+  </div>
+
+  <!-- EMI Section -->
+  <section class="emi-section" id="emiCalculatorSection">
+    <h2>How Much Can You Borrow?</h2>
+    <div class="emi-form">
+      <label>Age:</label>
+      <input type="number" id="age" placeholder="e.g. 30" required />
+      <label>Occupation:</label>
+      <select id="occupation">
+        <option value="salaried">Salaried</option>
+        <option value="self-employed">Self-employed</option>
+        <option value="business">Business Owner</option>
+      </select>
+      <label>Monthly Income (₹):</label>
+      <input type="number" id="income" placeholder="e.g. 50000" required />
+
+      <label>Existing EMI (₹):</label>
+      <input type="number" id="existingEmi" placeholder="e.g. 3000" required />
+
+      <label>Loan Tenure (years):</label>
+      <input type="number" id="tenure" placeholder="e.g. 15" value="15" required />
+
+      <label>Interest Rate (%):</label>
+      <input type="number" id="interestRate" placeholder="e.g. 9" value="9" required />
+
+      <button onclick="calculateBorrowableAmount()">Calculate</button>
+
+      <div class="loan-result" id="loanResult"></div>
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section class="emi-section" id="emiFaqSection">
+    <h4>Frequently asked questions about Eligibility Calculator</h4>
+    <small class="mt-2">Know what questions the users frequently asks about Eligibility calculators</small>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">Q1: What are the eligibility criteria for Home Loan?</button>
+      <div class="faq-answer">
+        <p>There is an eligibility criterion that banks have before they go ahead sanctioning it. A few important of them are employment stability, age criteria, credit rating, financial stability etc</p>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">Q2: What is the minimumm salary for home loan</button>
+      <div class="faq-answer">
+        <p>Banks usually up to 60 times your monthly net income (salary). You can calculate your home loan eligibility using the home loan eligibility calculator.</p>
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">Q3: Can I pay off EMI early?</button>
+      <div class="faq-answer">
+        <p>Yes, but prepayment terms depend on your lender.</p>
+      </div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-question" onclick="toggleFaq(this)">Q3: What is Home-Loan EMI?</button>
+      <div class="faq-answer">
+        <p>Home loan is a loan taken from any financial institution for buying a house. The EMI that is calculated for this loan is termed as a Home loan EMI..</p>
+      </div>
+    </div>
+  </section>
+{% endblock %}
+{% block js %}
+  <script src="{% static 'properties/main_js/bootstrap.bundle.min.js' %}"></script>
+  <script src="{% static 'properties/main_js/main.js' %}"></script>
+  <script src="{% static 'properties/main_js/emi.js' %}"></script>
+{% endblock %}

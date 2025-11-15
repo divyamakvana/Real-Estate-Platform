@@ -1,0 +1,190 @@
+{% load static %}
+
+<!-- CSRF token for JS -->
+<script>
+  const csrfToken = '{{ csrf_token }}'
+</script>
+<!-- Call Now Modal -->
+
+{% if properties %}
+<div class="results-summary mb-3">
+    <h5 class="fw-bold">{{ results_summary }}</h5>
+</div>
+
+  <div class="p99-results">
+    {% for prop in properties %}
+      <div class="p99-card shadow-sm" data-id="{{ prop.id }}">
+        <!-- Left Image -->
+        <div class="p99-img-wrap">
+          {% if prop.images.first %}
+            <img src="{{ prop.images.first.image.url }}" alt="{{ prop.apartment_name }}" class="p99-img" />
+          {% else %}
+            <img src="" alt="No image" class="p99-img" />
+          {% endif %}
+
+          <!-- Shortlist button -->
+          <button class="shortlist-btn position-absolute top-0 end-0 m-2" data-id="{{ prop.id }}">
+            {% if prop.id in user_shortlisted %}
+              <i class="bi bi-heart-fill text-danger"></i>
+            {% else %}
+              <i class="bi bi-heart"></i>
+            {% endif %}
+          </button>
+
+          <!-- Featured Tag -->
+          {% if prop.is_featured %}
+            <span class="p99-featured">FEATURED</span>
+          {% endif %}
+        </div>
+
+        <!-- Right Details -->
+        <div class="p99-content">
+          <!-- Header Info -->
+          <div class="p99-header">
+           
+            {% if apartment_name %}
+             <h3 class="p99-title">{{ prop.apartment_name }}</h3>
+             {% else %}
+
+            {% endif %}
+            <p class="p99-loc">
+              <i class="bi bi-geo-alt"></i> {{ prop.locality.name }}, {{ prop.locality.city.name }}
+            </p>
+
+            <!-- Badges -->
+            <div class="p99-badges">
+              {% if prop.bhk %}
+                <span class="p99-badge">{{ prop.bhk|upper }}</span>
+              {% endif %}
+              <span class="p99-badge">{{ prop.get_property_type_display }}</span>
+              <span class="p99-badge">{{ prop.get_deal_type_display }}</span>
+              <span class="p99-badge">{{ prop.get_require_display }}</span>
+            </div>
+          </div>
+
+          <!-- Footer Info -->
+          <div class="p99-footer">
+            <div class="p99-price-wrap">
+              <p class="p99-price">{{ prop.display_price }}</p>
+              <p class="p99-size">{{prop.desc}}</p>
+              {% if prop.area %}
+                <span class="p99-size">Area {{ prop.area }} sqft</span>
+              {% endif %}
+            </div>
+
+            <div class="p99-actions">
+              <!-- Call Now Button -->
+              {% comment %} <button class="p99-call-btn"
+                data-phone="{{ prop.owner.profile.phone|default:'' }}"
+                data-masked="{% if prop.owner.profile.phone %}
+                  {{ prop.owner.profile.phone|slice:':2' }}XXXXXX{{ prop.owner.profile.phone|slice:'-2:' }}
+                {% else %}
+                  N/A
+                {% endif %}">
+                <i class="bi bi-telephone"></i> Call Now
+              </button> {% endcomment %}
+
+              
+              <a href="{% url 'view_detail' prop.id %}" class="p99-detail-btn">View Details</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <p>No properties found matching your filters.</p>
+{% endif %}
+<div class="modal fade" id="callNowModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Contact Owner</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <p>Owner Phone: <span id="ownerPhone"></span></p>
+        </div>
+        <div class="modal-footer">
+          <button id="revealBtn" class="btn btn-warning">Reveal Number</button>
+          <a href="#" id="callNowLink" class="btn btn-success">Call Now</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+<script>
+  const csrfToken = '{{ csrf_token }}'
+</script>
+<script>
+  document.querySelectorAll('.shortlist-btn').forEach((btn) => {
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation()
+      let propertyId = this.dataset.id
+      let icon = this.querySelector('i')
+  
+      fetch("{% url 'toggle_shortlist' %}", {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': csrfToken,
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: `property_id=${propertyId}`
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.status === 'added') {
+            icon.classList.remove('bi-heart')
+            icon.classList.add('bi-heart-fill', 'text-danger')
+          } else if (data.status === 'removed') {
+            icon.classList.remove('bi-heart-fill', 'text-danger')
+            icon.classList.add('bi-heart')
+          }
+        })
+        .catch((err) => console.log(err))
+    })
+  })
+  
+  // Call Now
+  document.querySelectorAll('.p99-call-btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        let phone = this.dataset.phone;
+        let masked = this.dataset.masked;
+
+        const modal = document.getElementById("callNowModal");
+        const phoneText = document.getElementById("ownerPhone");
+        const callLink = document.getElementById("callNowLink");
+        const revealBtn = document.getElementById("revealBtn");
+
+        if (!phone || phone.trim() === "") {
+            phoneText.textContent = "Owner's phone number not available!";
+            callLink.href = "#";
+            revealBtn.style.display = "none";
+        } else {
+            phoneText.textContent = masked;
+            callLink.href = "#";
+
+            // Show reveal button only if logged in
+            if (isAuthenticated) {
+                revealBtn.style.display = "inline-block";
+                revealBtn.onclick = function() {
+                    phoneText.textContent = phone;
+                    callLink.href = "tel:" + phone;
+                };
+            } else {
+                revealBtn.style.display = "inline-block";
+                revealBtn.onclick = function() {
+                    // redirect to login page
+                    window.location.href = "/login/?next=" + window.location.pathname;
+                };
+            }
+        }
+
+        let bsModal = new bootstrap.Modal(modal);
+        bsModal.show();
+    });
+});
+
+</script>
+<script src="{% static 'properties/main_js/main.js' %}"></script>

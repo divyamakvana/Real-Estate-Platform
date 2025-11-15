@@ -1,0 +1,119 @@
+{% load static %}
+
+<div class="property-section">
+
+  <div class="carousel-wrapper">
+    <div id="{{ carousel_id }}" class="carousel slide" data-bs-ride="false">
+      <div class="carousel-inner">
+
+        {% for property in properties %}
+          {% if forloop.counter0|divisibleby:4 %}
+            <div class="carousel-item {% if forloop.first %}active{% endif %}">
+              <div class="d-flex align-items-stretch carousel-slide-row">
+          {% endif %}
+
+          <!-- Single Card -->
+          <div class="property-card-wrapper">
+            <div class="property-card shadow-sm position-relative">
+
+              <!-- Image + Heart -->
+              <div class="property-img-wrapper position-relative">
+                {% if property.images.first %}
+                  <img src="{{ property.images.first.image.url }}" alt="{{ property.title }}">
+                {% else %}
+                  <img src="{% static 'properties/images/admin.jpg' %}" alt="No image">
+                {% endif %}
+
+                <!-- Heart / Shortlist -->
+                <button class="shortlist-btn position-absolute top-0 end-0 m-2" data-id="{{ property.id }}">
+                  {% if property.id in user_shortlisted %}
+                    <i class="bi bi-heart-fill text-danger"></i>
+                  {% else %}
+                    <i class="bi bi-heart"></i>
+                  {% endif %}
+                </button>
+
+                <!-- Price -->
+             
+                <span class="price-tag position-absolute bottom-0 start-0 m-2 px-2 py-1 rounded bg-primary text-white">
+                  {{ property.display_price }}
+                </span>
+                
+              </div>
+
+              <!-- Card Body -->
+              <div class="property-card-body position-relative">
+                <a href="{% url 'view_detail' property.id %}" class="stretched-link text-decoration-none text-dark"></a>
+                <h6 class="mb-1 fw-semibold">{{ property.title|truncatechars:40 }}</h6>
+
+                <!-- BHK / Bed info: show only if NOT commercial -->
+                {% if property.property_type != 'commercial' %}
+                  <h6>{{ property.bhk }}</h6>
+                {% endif %}
+
+                <p class="mb-1 small text-muted">
+                  <i class="bi bi-geo-alt me-1"></i>
+                  {% if property.locality %}
+                    {{ property.locality.city.name }}, {{ property.locality.name }}
+                  {% else %}
+                    Unknown
+                  {% endif %}
+                </p>
+
+                <small class="text-muted d-block">
+                  Posted by {{ property.get_listed_by_display }} • {{ property.posted_on|date:"M d, Y" }}
+                </small>
+              </div>
+
+            </div>
+          </div>
+          <!-- End Card -->
+
+          {% if forloop.counter|divisibleby:4 or forloop.last %}
+              </div>
+            </div>
+          {% endif %}
+        {% endfor %}
+
+      </div>
+
+      <!-- Arrows -->
+      <button class="carousel-control-prev custom-arrow" type="button" data-bs-target="#{{ carousel_id }}" data-bs-slide="prev">
+        <i class="bi bi-chevron-left"></i>
+      </button>
+      <button class="carousel-control-next custom-arrow" type="button" data-bs-target="#{{ carousel_id }}" data-bs-slide="next">
+        <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- AJAX Shortlist Script -->
+<script>
+document.querySelectorAll('.shortlist-btn').forEach(btn => {
+    btn.addEventListener('click', function(e){
+        e.stopPropagation(); // prevent card click
+        let propertyId = this.dataset.id;
+        let icon = this.querySelector('i');
+
+        fetch("{% url 'toggle_shortlist' %}", {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: `property_id=${propertyId}`
+        })
+        .then(res => res.json())
+        .then(data => {
+            if(data.status === 'added'){
+                icon.classList.remove('bi-heart');
+                icon.classList.add('bi-heart-fill', 'text-danger');
+            } else if(data.status === 'removed'){
+                icon.classList.remove('bi-heart-fill', 'text-danger');
+                icon.classList.add('bi-heart');
+            }
+        })
+    });
+});
+</script>

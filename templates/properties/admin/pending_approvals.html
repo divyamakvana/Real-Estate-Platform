@@ -1,0 +1,132 @@
+{% extends "properties/admin_base.html" %}
+
+{% block body %}
+<div class="container mt-4">
+
+    <!-- Pending Users -->
+    <h3>Pending User Role Approvals</h3>
+    <form method="get" class="mb-2 d-flex">
+        <input type="text" name="user_q" value="{{ user_search_query }}" class="form-control me-2" placeholder="Search users...">
+       <button type="submit" class="btn btn-primary btn-sm" style="width: 100px;">Search</button>
+    </form>
+
+    <table class="table table-bordered mt-2">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Role Requested</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in pending_users %}
+            <tr>
+                <td>{{ user.id }}</td>
+                <td>{{ user.user.username }}</td>
+                <td>{{ user.role|title }}</td>
+                <td>{{ user.status|title }}</td>
+                <td>
+                    <a href="{% url 'approve_user_role' user.id %}" class="btn btn-success btn-sm">Approve</a>
+                    <a href="{% url 'reject_user_role' user.id %}" class="btn btn-danger btn-sm">Reject</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="text-center">No pending users</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Users Pagination -->
+    <nav>
+        <ul class="pagination">
+            {% if pending_users.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?user_page={{ pending_users.previous_page_number }}&user_q={{ user_search_query }}&prop_q={{ property_search_query }}">Previous</a>
+            </li>
+            {% endif %}
+
+            {% for num in pending_users.paginator.page_range %}
+            <li class="page-item {% if pending_users.number == num %}active{% endif %}">
+                <a class="page-link" href="?user_page={{ num }}&user_q={{ user_search_query }}&prop_q={{ property_search_query }}">{{ num }}</a>
+            </li>
+            {% endfor %}
+
+            {% if pending_users.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?user_page={{ pending_users.next_page_number }}&user_q={{ user_search_query }}&prop_q={{ property_search_query }}">Next</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+
+    <!-- Pending Properties -->
+    <h3 class="mt-5">Pending Property Approvals</h3>
+    <form method="get" class="mb-2 d-flex">
+        <input type="text" name="prop_q" value="{{ property_search_query }}" class="form-control me-2" placeholder="Search properties...">
+        <button type="submit" class="btn btn-primary btn-sm" style="width: 100px;">Search</button>
+
+
+    </form>
+
+    <table class="table table-bordered mt-2">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Owner</th>
+                <th>Type</th>
+                <th>Locality</th>
+                <th>Price</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for prop in pending_properties %}
+            <tr>
+                <td>{{ prop.id }}</td>
+                <td>{{ prop.owner.username }}</td>
+                <td>{{ prop.property_type }}</td>
+                <td>{{ prop.locality.name }}</td>
+                <td>₹{{ prop.price|floatformat:2 }}</td>
+                <td>
+                    <a href="{% url 'update_property_status' prop.id 'approved' %}" class="btn btn-success btn-sm">Approve</a>
+                    <a href="{% url 'update_property_status' prop.id 'rejected' %}" class="btn btn-danger btn-sm">Reject</a>
+                    <a href="{% url 'property_detail' prop.id %}" class="btn btn-info btn-sm">View</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="text-center">No pending properties</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Properties Pagination -->
+    <nav>
+        <ul class="pagination">
+            {% if pending_properties.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?prop_page={{ pending_properties.previous_page_number }}&prop_q={{ property_search_query }}&user_q={{ user_search_query }}">Previous</a>
+            </li>
+            {% endif %}
+
+            {% for num in pending_properties.paginator.page_range %}
+            <li class="page-item {% if pending_properties.number == num %}active{% endif %}">
+                <a class="page-link" href="?prop_page={{ num }}&prop_q={{ property_search_query }}&user_q={{ user_search_query }}">{{ num }}</a>
+            </li>
+            {% endfor %}
+
+            {% if pending_properties.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?prop_page={{ pending_properties.next_page_number }}&prop_q={{ property_search_query }}&user_q={{ user_search_query }}">Next</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+
+</div>
+{% endblock %}

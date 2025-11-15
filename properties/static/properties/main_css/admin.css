@@ -1,0 +1,854 @@
+/* General reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+/* Primary color */
+:root {
+    --primary-color: #00A1F1;
+    --primary-color-hover: #008ECC;
+}
+
+/* Headings */
+h3, h4, h5 {
+    color: var(--primary-color);
+}
+
+/* Buttons */
+.btn-primary-custom {
+    background-color: var(--primary-color);
+    color: #fff;
+    border: none;
+}
+
+.btn-primary-custom:hover {
+    background-color: var(--primary-color-hover);
+    color: #fff;
+}
+
+/* Badges */
+.badge-primary-custom {
+    background-color: var(--primary-color);
+    color: #fff;
+}
+
+/* Table headers */
+.table thead {
+    background-color: var(--primary-color);
+    color: #fff;
+}
+
+/* Pagination */
+.pagination .page-link {
+    color: var(--primary-color);
+}
+
+.pagination .page-item.active .page-link {
+    background-color: var(--primary-color);
+    color: #fff;
+    border-color: var(--primary-color);
+}
+
+.pagination .page-link:hover {
+    background-color: var(--primary-color-hover);
+    color: #fff;
+}
+
+/* Table hover effect */
+.table-hover tbody tr:hover {
+    background-color: rgba(0, 161, 241, 0.1);
+}
+
+/* Full-page container */
+.login-container {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: url('/static/properties/images/admin.jpg') no-repeat center center/cover;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Glass effect login box */
+.login-box {
+    width: 350px;
+    min-height: 450px;
+    padding: 30px 25px;
+    border-radius: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+    text-align: center;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.login-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+}
+
+/* Heading */
+.login-box h2 {
+    margin-bottom: 25px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    color: #00A1F1;
+}
+
+/* Input fields */
+.input-group {
+    margin-bottom: 15px;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 12px 15px;
+    border-radius: 8px;
+    border: none;
+    outline: none;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.input-group input::placeholder {
+    color: #ddd;
+}
+
+.input-group input:focus {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.02);
+}
+
+/* Button */
+button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    background: #00A1F1;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 15px;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+button:hover {
+    background: #007ACC;
+    transform: scale(1.02);
+}
+
+/* Forgot password link */
+.forgot-link {
+    display: block;
+    text-align: right;
+    margin: 5px 0 15px 0;
+    font-size: 13px;
+    color: #eee;
+    text-decoration: none;
+    transition: color 0.3s, text-decoration 0.3s;
+}
+
+.forgot-link:hover {
+    color: #00A1F1;
+    text-decoration: underline;
+}
+
+/* Responsive adjustments */
+@media (max-width: 400px) {
+    .login-box {
+        width: 90%;
+        padding: 25px 20px;
+    }
+}
+/* Body background */
+body {
+    background: #f7f9fc;
+    color: black;
+}
+
+/* Sidebar */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 230px;
+    background: #00A1F1;   /* dark navy */
+    color: black;
+    padding-top: 20px;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .sidebar h4 {
+    font-size: 22px;
+    margin-bottom: 30px;
+    font-weight: bold;
+    text-align: center;
+    color: black;
+  }
+  
+  /* Sidebar links */
+  .sidebar a {
+    display: flex;
+    align-items: center;
+    gap: 10px;                 /* spacing between icon and text */
+    padding: 12px 20px;
+    margin: 5px 10px;
+    text-decoration: none;
+    color: black;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+  
+  .sidebar a:hover,
+  .sidebar a.active {
+    background: whitesmoke;
+    color: #00A1F1;
+  }
+  /* #1abc9c */
+  
+  /* Main content */
+  .content {
+    margin-left: 230px;
+    padding: 20px;
+  }
+  
+  /* Stat Cards */
+  .dashboard-card {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+    margin-bottom: 20px;
+  }
+  
+  .dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  }
+  
+  .card-icon {
+    font-size: 30px;
+    margin-right: 20px;
+    color: #fff;
+    padding: 15px;
+    border-radius: 12px;
+  }
+  
+  /* Different Card Colors */
+  .users-card .card-icon {
+    background: linear-gradient(45deg, #36d1dc, #5b86e5);
+  }
+  .properties-card .card-icon {
+    background: linear-gradient(45deg, #11998e, #38ef7d);
+  }
+  .approvals-card .card-icon {
+    background: linear-gradient(45deg, #ff512f, #dd2476);
+  }
+  
+  .card-content h5 {
+    margin: 0;
+    font-size: 16px;
+    color: #555;
+  }
+  
+  .card-content h2 {
+    margin: 5px 0;
+    font-size: 28px;
+    font-weight: bold;
+    color: #333;
+  }
+  
+  .card-content p {
+    margin: 0;
+    font-size: 13px;
+    color: #777;
+  }
+  
+  /* Charts */
+  .chart-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+  }
+
+  /* Main carousel container to maintain uniform height */
+#propertyCarousel .carousel-inner {
+    height: 400px; /* fixed height for all images */
+}
+
+/* Main carousel image styling */
+.main-carousel-image {
+    width: 100%;             /* full width of container */
+    height: 100%;            /* fill the carousel height */
+    object-fit: cover;       /* scale image to fill container without distortion */
+    border-radius: 10px;     /* rounded corners */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2); /* subtle shadow */
+    transition: transform 0.3s ease; /* smooth hover effect */
+}
+
+/* Optional hover effect */
+.main-carousel-image:hover {
+    transform: scale(1.05);
+}
+
+/* Custom carousel arrows */
+.custom-arrow {
+    width: 50px;
+    height: 50px;
+    background-color: rgba(0,0,0,0.5);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    transition: background-color 0.3s ease;
+}
+
+.custom-arrow:hover {
+    background-color: rgba(0,0,0,0.8);
+}
+
+/* Adjust icon size */
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    width: 25px;
+    height: 25px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    #propertyCarousel .carousel-inner {
+        height: 250px;
+    }
+
+    .custom-arrow {
+        width: 40px;
+        height: 40px;
+    }
+
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+        width: 20px;
+        height: 20px;
+    }
+}
+/* Property Details Card */
+.detail-card {
+    border-radius: 10px;       /* rounded corners */
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.detail-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+/* Card header */
+.detail-card .card-header {
+    background-color: #f8f9fa; /* light background */
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+/* Card body */
+.detail-card .card-body {
+    padding: 1rem;
+}
+
+/* Each property row */
+.detail-card .row {
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+/* Icon styling */
+.detail-card .bi {
+    vertical-align: middle;
+}
+
+/* Text styling */
+.detail-card .text-muted {
+    font-size: 0.85rem;
+}
+
+.detail-card .fw-semibold {
+    font-weight: 600;
+}
+
+.detail-card .text-primary {
+    color: #0d6efd !important; /* Bootstrap primary */
+}
+
+.detail-card .text-success {
+    color: #198754 !important;
+}
+
+.detail-card .text-warning {
+    color: #ffc107 !important;
+}
+
+.detail-card .small.text-muted {
+    font-size: 0.75rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .detail-card .card-body {
+        padding: 0.75rem;
+    }
+
+    .detail-card .row {
+        font-size: 0.85rem;
+    }
+}
+/* Owner Details Box */
+.owner-box {
+    background-color: #ffffff;       /* white background */
+    border-radius: 12px;             /* rounded corners */
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1); /* soft shadow */
+    padding: 20px 15px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.owner-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.owner-box h4 {
+    font-size: 1.5rem;
+}
+
+.owner-box h6 {
+    font-size: 1rem;
+}
+
+.owner-box p {
+    font-size: 0.95rem;
+}
+
+.owner-box small {
+    font-size: 0.85rem;
+    color: #6c757d; /* Bootstrap muted color */
+}
+
+/* === Layout === */
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f8f9fa;
+  margin: 0;
+  padding: 0;
+}
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 230px;
+  background-color: white;
+  padding-top: 20px;
+  overflow-y: auto;
+}
+
+.sidebar-header {
+  text-align: center;
+  color: black;
+  margin-bottom: 1rem;
+}
+
+.sidebar a {
+  display: block;
+  color: black;
+  padding: 12px 20px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.sidebar a:hover {
+  background-color: #495057;
+  color: #fff;
+}
+
+.sidebar a.active {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.sidebar i {
+  margin-right: 10px;
+}
+
+.content {
+  margin-left: 230px; /* same as sidebar width */
+  padding: 20px;
+}
+
+/* === Navbar === */
+.navbar {
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.navbar .nav-link {
+  color: #555 !important;
+}
+
+.navbar .nav-link:hover {
+  color: #007bff !important;
+}
+
+/* === Cards === */
+.card {
+  border: none;
+  border-radius: 10px;
+}
+
+.card-header {
+  font-weight: bold;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.card-body {
+  font-size: 14px;
+}
+
+/* === Tables === */
+.table thead {
+  background-color: #f1f1f1;
+  font-size: 14px;
+}
+
+.table tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+/* === Quick Actions Buttons === */
+.btn {
+  border-radius: 30px;
+  padding: 8px 18px;
+}
+
+.btn i {
+  margin-right: 6px;
+}
+
+/* === Dashboard Cards === */
+.dashboard-card {
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  color: #333;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+.dashboard-card .card-icon {
+  font-size: 2rem;
+  margin-right: 15px;
+  color: #fff;
+  border-radius: 10px;
+  padding: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* User Card */
+.users-card .card-icon {
+  background: #007bff;  /* Blue */
+}
+.users-card h2 {
+  color: #007bff;
+}
+
+/* Properties Card */
+.properties-card .card-icon {
+  background: #28a745; /* Green */
+}
+.properties-card h2 {
+  color: #28a745;
+}
+
+/* Approvals Card */
+.approvals-card .card-icon {
+  background: #ffc107; /* Yellow/Orange */
+  color: #333;
+}
+.approvals-card h2 {
+  color: #ffc107;
+}
+
+/* === Chart Cards === */
+.chart-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  min-height: 350px;
+}
+
+.chart-card h5 {
+  font-weight: 600;
+  margin-bottom: 15px;
+}
+
+/* mockup look */
+/* KPI Cards */
+.kpi-card {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 20px;
+  border-radius: 12px;
+  background: #fff;
+  transition: all 0.2s ease-in-out;
+}
+.kpi-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+}
+.kpi-icon {
+  width: 55px;
+  height: 55px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 1.3rem;
+  color: #fff;
+}
+
+/* Quick Actions */
+.quick-action-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 25px;
+  border-radius: 12px;
+  background: #fff;
+  color: #333;
+  font-weight: 500;
+  transition: all 0.2s ease-in-out;
+  text-align: center;
+}
+.quick-action-card i {
+  font-size: 2rem;
+  margin-bottom: 10px;
+  color: #0d6efd;
+}
+.quick-action-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+}
+
+/* Dashboard Cards & Tables */
+.dashboard-wrapper .card {
+  border-radius: 12px;
+}
+.table th {
+  font-weight: 600;
+}
+
+.profile-btns .btn {
+    height: 45px;             /* uniform height */
+    display: flex;            
+    align-items: center;      /* vertical center text */
+    justify-content: center;  /* horizontal center text */
+    font-weight: 500;         /* optional for visual consistency */
+}
+
+/* Responsive Adjustments */
+@media (max-width: 991px) {
+  .kpi-card {
+    flex-direction: column;
+    text-align: center;
+  }
+  .quick-action-card {
+    padding: 18px;
+  }
+  h3, h6 {
+    font-size: 1rem;
+  }
+}
+@media (max-width: 576px) {
+  .dashboard-wrapper {
+    padding: 10px;
+  }
+  .kpi-card {
+    flex-direction: column;
+    text-align: center;
+    gap: 8px;
+  }
+  .kpi-icon {
+    font-size: 20px;
+    padding: 12px;
+  }
+  .quick-action-card {
+    padding: 15px;
+  }
+  .quick-action-card i {
+    font-size: 22px;
+  }
+  .card-body h6 {
+    font-size: 0.95rem;
+  }
+  .card-body {
+    padding: 10px;
+  }
+  table {
+    font-size: 0.8rem;
+  }
+  canvas {
+    width: 100% !important;
+    height: auto !important;
+  }
+}
+/* 📱 Responsive Layout for iPhone, Samsung, etc. */
+@media (max-width: 992px) {
+  /* Sidebar: hide off-screen by default */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: -250px;
+    width: 250px;
+    height: 100vh;
+    background-color: #fff;
+    z-index: 1050;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+  }
+
+  /* When sidebar is active */
+  .sidebar.active {
+    left: 0;
+  }
+
+  /* Overlay behind sidebar */
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 1040;
+  }
+
+  .sidebar-overlay.show {
+    display: block;
+  }
+
+  /* Add hamburger button in navbar */
+  .navbar .menu-toggle {
+    display: inline-block;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #333;
+  }
+
+  /* Prevent layout shift */
+  .content {
+    margin-left: 0 !important;
+  }
+}
+
+@media (min-width: 993px) {
+  /* Hide toggle button on large screens */
+  .navbar .menu-toggle {
+    display: none;
+  }
+}
+/* manage users responsive */
+/* 📱 Responsive Table (no HTML changes needed) */
+@media (max-width: 768px) {
+
+  /* Make table scroll horizontally if needed */
+  .table {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    border: none;
+    white-space: nowrap;
+  }
+
+  /* Make table header sticky on scroll */
+  .table thead {
+    background-color: #00A1F1;
+    color: white;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+
+  /* Improve table readability on small screens */
+  .table th,
+  .table td {
+    padding: 10px 12px;
+    font-size: 14px;
+    text-align: left;
+  }
+
+  /* Better spacing for buttons inside table */
+  td.d-flex {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  /* Prevent table from shrinking too much */
+  .table td,
+  .table th {
+    min-width: 100px;
+  }
+
+  /* Make pagination wrap properly */
+  .pagination {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  /* Center search bar & button */
+  form.d-flex {
+    flex-direction: column;
+  }
+
+  form.d-flex input,
+  form.d-flex button {
+    width: 100% !important;
+  }
+
+  form.d-flex button {
+    margin-top: 6px;
+  }
+
+  /* Smaller heading on mobile */
+  h3 {
+    text-align: center;
+    font-size: 1.3rem;
+  }
+}

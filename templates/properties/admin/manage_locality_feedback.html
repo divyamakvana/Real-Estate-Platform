@@ -1,0 +1,149 @@
+{% extends 'properties/admin_base.html' %}
+{% block body %}
+<div class="container mt-4">
+  <h3 class="mb-4" style="color: #00A1F1;">Manage Locality Feedback</h3>
+
+  <!-- Search Form -->
+  <form method="get" class="mb-3 d-flex gap-2">
+    <input type="text" name="q" value="{{ search_query }}" class="form-control border-primary" placeholder="Search by locality, user, or comment" />
+    <button type="submit" class="btn btn-primary-custom" style="width:100px;">Search</button>
+  </form>
+
+  <!-- Pending/All Reviews Table -->
+  <table class="table table-bordered table-striped table-hover">
+    <thead style="background-color: #00A1F1; color: white;">
+      <tr>
+        <th>User</th>
+        <th>Locality</th>
+        <th>Property</th>
+        <th>Comment</th>
+        <th>Average Rating</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for review in reviews %}
+      <tr>
+        <td>{{ review.user.username }}</td>
+        <td>{{ review.locality.name }}</td>
+        <td>
+          {% if review.properties %}
+            <a href="{% url 'property_detail' review.properties.id %}" style="color: #00A1F1;">
+              {{ review.properties.property_type|capfirst }}
+            </a>
+          {% else %}
+            -
+          {% endif %}
+        </td>
+        <td>{{ review.comment }}</td>
+        <td>{{ review.average_rating }}</td>
+        <td>
+          {% if review.approved %}
+            <span class="badge badge-primary-custom">Approved</span>
+          {% else %}
+            <span class="badge bg-warning text-dark">Pending</span>
+          {% endif %}
+        </td>
+        <td class="d-flex flex-wrap gap-1">
+          {% if not review.approved %}
+            <a href="{% url 'approve_review' review.id %}" class="btn btn-primary-custom btn-sm">Approve</a>
+            <a href="{% url 'reject_review' review.id %}" class="btn btn-danger btn-sm">Reject</a>
+          {% endif %}
+          <a href="{% url 'delete_review' review.id %}" class="btn btn-warning btn-sm">Delete</a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="7" class="text-center">No reviews found.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <!-- Pagination for Pending/All Reviews -->
+  <nav>
+    <ul class="pagination justify-content-center">
+      {% if reviews.has_previous %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ reviews.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}" style="color: #00A1F1;">Previous</a>
+      </li>
+      {% endif %}
+      {% for num in reviews.paginator.page_range %}
+      <li class="page-item {% if reviews.number == num %}active{% endif %}">
+        <a class="page-link {% if reviews.number != num %}text-primary{% endif %}" 
+           href="?page={{ num }}{% if search_query %}&q={{ search_query }}{% endif %}"
+           style="{% if reviews.number == num %}background-color:#00A1F1; color:white;{% endif %}">{{ num }}</a>
+      </li>
+      {% endfor %}
+      {% if reviews.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ reviews.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}" style="color: #00A1F1;">Next</a>
+      </li>
+      {% endif %}
+    </ul>
+  </nav>
+
+  <!-- Approved Reviews Section -->
+  <h4 class="mt-5 mb-3" style="color: #00A1F1;" id="approved">All Approved Reviews</h4>
+  <table class="table table-bordered table-striped table-hover">
+    <thead style="background-color: #00A1F1; color: white;">
+      <tr>
+        <th>User</th>
+        <th>Locality</th>
+        <th>Property</th>
+        <th>Comment</th>
+        <th>Average Rating</th>
+        <th>Posted On</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for review in approved_reviews %}
+      <tr>
+        <td>{{ review.user.username }}</td>
+        <td>{{ review.locality.name }}</td>
+        <td>
+          {% if review.properties %}
+            <a href="{% url 'property_detail' review.properties.id %}" style="color: #00A1F1;">
+              {{ review.properties.property_type|capfirst }}
+            </a>
+          {% else %}
+            -
+          {% endif %}
+        </td>
+        <td>{{ review.comment }}</td>
+        <td>{{ review.average_rating }}</td>
+        <td>{{ review.created_at|date:'d M Y H:i' }}</td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="6" class="text-center">No approved reviews yet.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <!-- Pagination for Approved Reviews -->
+  <nav>
+    <ul class="pagination justify-content-center">
+      {% if approved_reviews.has_previous %}
+      <li class="page-item">
+        <a class="page-link" href="?approved_page={{ approved_reviews.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}#approved" style="color: #00A1F1;">Previous</a>
+      </li>
+      {% endif %}
+      {% for num in approved_reviews.paginator.page_range %}
+      <li class="page-item {% if approved_reviews.number == num %}active{% endif %}">
+        <a class="page-link {% if approved_reviews.number != num %}text-primary{% endif %}" 
+           href="?approved_page={{ num }}{% if search_query %}&q={{ search_query }}{% endif %}#approved"
+           style="{% if approved_reviews.number == num %}background-color:#00A1F1; color:white;{% endif %}">{{ num }}</a>
+      </li>
+      {% endfor %}
+      {% if approved_reviews.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="?approved_page={{ approved_reviews.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}#approved" style="color: #00A1F1;">Next</a>
+      </li>
+      {% endif %}
+    </ul>
+  </nav>
+</div>
+{% endblock %}

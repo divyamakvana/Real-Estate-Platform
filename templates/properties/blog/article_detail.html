@@ -1,0 +1,7 @@
+<h1>{{ article.title }}</h1>
+<p>{{ article.date_created|date:"M d, Y" }} by {{ article.author }}</p>
+{% if article.image %}
+<img src="{{ article.image.url }}" alt="">
+{% endif %}
+<p>{{ article.content }}</p>
+<a href="/blog/">Back to Blog</a>

@@ -1,0 +1,8 @@
+<h1>Blog / News</h1>
+{% for article in articles %}
+    <div>
+        <h2><a href="{{ article.pk }}/">{{ article.title }}</a></h2>
+        <p>{{ article.date_created|date:"M d, Y" }} by {{ article.author }}</p>
+        <p>{{ article.content|truncatewords:30 }}</p>
+    </div>
+{% endfor %}
