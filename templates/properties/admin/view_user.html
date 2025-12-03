@@ -1,0 +1,123 @@
+{% extends "properties/admin_base.html" %}
+{% block title %}View User{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <h3 class="mb-4" style="color: #00A1F1;">User Details: {{ user_profile.user.username }}</h3>
+
+    <!-- User Info Card -->
+    <div class="card mb-4 border-primary shadow-sm">
+        <div class="card-body">
+            <h5 class="card-title" style="color: #00A1F1;">{{ user_profile.user.username }}</h5>
+            <p class="card-text"><strong>Email:</strong> {{ user_profile.user.email }}</p>
+            <p class="card-text"><strong>Phone:</strong> {{ user_profile.phone|default:"N/A" }}</p>
+            <p class="card-text"><strong>Role:</strong> {{ user_profile.role|title }}</p>
+            <p class="card-text"><strong>Status:</strong>
+                {% if user_profile.user.is_active %}
+                    <span class="badge" style="background-color: #00A1F1;">Active</span>
+                {% else %}
+                    <span class="badge bg-danger">Inactive</span>
+                {% endif %}
+            </p>
+            <p class="card-text"><strong>Role Approval Status:</strong> {{ user_profile.status|title }}</p>
+            <p class="card-text"><strong>Joined On:</strong> {{ user_profile.created_at|date:"d M Y H:i" }}</p>
+        </div>
+    </div>
+
+    <!-- Admin Actions -->
+    <div class="mb-4 d-flex flex-wrap gap-2">
+        {% if user_profile.status == "pending" %}
+            <a href="{% url 'approve_user_role' user_profile.user.id %}" class="btn btn-sm" style="background-color: #00A1F1; color: #fff;">Approve Role</a>
+            <a href="{% url 'reject_user_role' user_profile.user.id %}" class="btn btn-sm btn-danger">Reject Role</a>
+        {% else %}
+            {% if user_profile.user.is_active %}
+                <a href="{% url 'suspend_user' user_profile.user.id %}" class="btn btn-sm btn-warning">Suspend User</a>
+            {% else %}
+                <a href="{% url 'activate_user' user_profile.user.id %}" class="btn btn-sm" style="background-color: #00A1F1; color: #fff;">Activate User</a>
+            {% endif %}
+        {% endif %}
+        <a href="{% url 'manage_users' %}" class="btn btn-sm btn-secondary">Back to Users</a>
+    </div>
+
+    <!-- User Properties -->
+    <h4 class="mt-5 mb-3" style="color: #00A1F1;">Properties Listed by {{ user_profile.user.username }}</h4>
+
+    <!-- Property Search -->
+    <form method="get" class="mb-2 d-flex gap-2">
+        <input type="text" name="q" value="{{ search_query }}" class="form-control border-primary" placeholder="Search properties...">
+        <button type="submit" class="btn btn-sm" style="background-color: #00A1F1; color: #fff; width: 100px;">Search</button>
+    </form>
+
+    <table class="table table-bordered table-striped">
+        <thead style="background-color: #00A1F1; color: white;">
+            <tr>
+                <th>ID</th>
+                <th>Type</th>
+                <th>Locality</th>
+                <th>Price</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for prop in user_properties %}
+            <tr>
+                <td>{{ prop.id }}</td>
+                <td>{{ prop.property_type }}</td>
+                <td>{{ prop.locality.name }}</td>
+                <td>{{ prop.display_price}}</td>
+                <td>
+                    {% if prop.status == "approved" %}
+                        <span class="badge" style="background-color: #00A1F1;">Approved</span>
+                    {% elif prop.status == "pending" %}
+                        <span class="badge bg-warning text-dark">Pending</span>
+                    {% else %}
+                        <span class="badge bg-danger">Rejected</span>
+                    {% endif %}
+                </td>
+                <td class="d-flex flex-wrap gap-1">
+                    {% if prop.status == "pending" %}
+                        <a href="{% url 'update_property_status' prop.id 'approved' %}" class="btn btn-sm" style="background-color: #00A1F1; color: #fff;">Approve</a>
+                        <a href="{% url 'update_property_status' prop.id 'rejected' %}" class="btn btn-sm btn-danger">Reject</a>
+                    {% elif prop.status == "approved" %}
+                        <a href="{% url 'update_property_status' prop.id 'rejected' %}" class="btn btn-sm btn-danger">Reject</a>
+                    {% elif prop.status == "rejected" %}
+                        <a href="{% url 'update_property_status' prop.id 'approved' %}" class="btn btn-sm" style="background-color: #00A1F1; color: #fff;">Approve</a>
+                    {% endif %}
+                    <a href="{% url 'property_detail' prop.id %}" class="btn btn-sm" style="background-color: #00A1F1; color: #fff;">View</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="text-center">No properties found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Property Pagination -->
+    <nav>
+        <ul class="pagination justify-content-center">
+            {% if user_properties.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ user_properties.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}" style="color: #00A1F1;">Previous</a>
+            </li>
+            {% endif %}
+
+            {% for num in user_properties.paginator.page_range %}
+                <li class="page-item {% if user_properties.number == num %}active{% endif %}">
+                    <a class="page-link {% if user_properties.number != num %}text-primary{% endif %}" 
+                       href="?page={{ num }}{% if search_query %}&q={{ search_query }}{% endif %}"
+                       style="{% if user_properties.number == num %}background-color:#00A1F1; color:white;{% endif %}">{{ num }}</a>
+                </li>
+            {% endfor %}
+
+            {% if user_properties.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ user_properties.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}" style="color: #00A1F1;">Next</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+</div>
+{% endblock %}

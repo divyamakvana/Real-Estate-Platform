@@ -1,0 +1,74 @@
+{% extends 'properties/base.html' %}
+{% load static %}
+{% block style %}
+<link href="{% static 'properties/main_css/bootstrap.min.css' %}" rel="stylesheet" />
+<link rel="stylesheet" href="{% static 'properties/main_css/style.css' %}" />
+
+<style>
+
+{% endblock %}
+
+{% block body %}
+<div class="box award">
+  <div class="user-actions text-center mt-2 text-dark">
+    <a href="" class="text-decoration-none">Shortlisted</a> |
+    <a href="" class="text-decoration-none">Buy Our Service</a> |
+    <a href="{% url 'post_property' %}" class="text-decoration-none">Post a Property</a>
+  </div>
+</div>
+
+<div class="profile-wrapper">
+  <div class="profile-card">
+    
+    
+    <form method="POST" action="{%url 'update_profile' %}">
+      {% csrf_token %}
+      
+      <div class="mb-3">
+        <label for="name" class="form-label">Name</label>
+        <input type="text" name="name" id="name" class="form-control"
+               value="{{ user.first_name }}" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="email" class="form-label">Email</label>
+        <input type="email" name="email" id="email" class="form-control"
+               value="{{ user.email }}" required>
+      </div>
+
+      <div class="mb-3">
+        <label for="phone" class="form-label">Mobile Number</label>
+        <input type="text" name="phone" id="phone" class="form-control"
+               value="{{ profile.phone }}" required>
+      </div>
+
+      <div class="form-check mb-3">
+        <input class="form-check-input text-decoration-none " type="checkbox" name="agree" id="agree"
+               {% if profile.agree %}checked{% endif %}>
+        <label class="form-check-label text-decoration-none small text-muted" for="agree">
+          I agree to be contacted by real estate for similar properties 
+          via WhatsApp, phone, SMS, e-mail etc.
+        </label>
+      </div>
+
+      <button type="submit" class="btn btn-primary w-100">Save Profile</button>
+
+      <p class="text-center mt-3 mb-1">
+        To delete your account, <a href="{% url 'delete_acc' %}">click here</a>.
+      </p>
+      <p class="text-center text-muted small">
+        By clicking you agree to <a href="{%url 'terms' %}">Terms and Conditions</a>.
+      </p>
+    </form>
+  </div>
+</div>
+
+
+{% comment %} chnage password {% endcomment %}
+
+{% endblock %}
+
+{% block js %}
+<script src="{% static 'properties/main_js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'properties/main_js/main.js' %}"></script>
+{% endblock %}

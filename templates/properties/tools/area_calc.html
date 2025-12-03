@@ -1,0 +1,112 @@
+{% extends "properties/base.html" %}
+{% load static %}
+{% block style %}
+
+  <link href="{% static 'properties/main_css/bootstrap.min.css' %}" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'properties/main_css/style.css' %}" />
+
+{% endblock style %}
+{% block body %}
+  <!-- Hero -->
+<section class="area-hero">
+     <h1>Area Calculator</h1>
+    <p>Convert land measurement units easily</p>
+</section>
+
+<!-- Tabs -->
+<div class="emi-tab-container">
+    <div class="emi-tab" onclick="scrollToSection('emiCalculatorSection')">Calculate Budget</div>
+    <div class="emi-tab" onclick="scrollToSection('emiFaqSection')">FAQs</div>
+</div>
+
+<!-- EMI Section -->
+<!-- Calculator -->
+<section class="area-section">
+    <h2>Convert Area Units</h2>
+    <div class="area-form">
+        <label>Enter Value</label>
+        <input type="number" id="areaValue" placeholder="Enter area">
+
+        <label>From Unit</label>
+        <select id="fromUnit">
+            <option value="sqft">Square Feet</option>
+            <option value="sqm">Square Meter</option>
+            <option value="sqyd">Square Yard</option>
+            <option value="acre">Acre</option>
+            <option value="hectare">Hectare</option>
+        </select>
+
+        <label>To Unit</label>
+        <select id="toUnit">
+            <option value="sqft">Square Feet</option>
+            <option value="sqm">Square Meter</option>
+            <option value="sqyd">Square Yard</option>
+            <option value="acre">Acre</option>
+            <option value="hectare">Hectare</option>
+        </select>
+
+        <button onclick=" convertArea()">Convert</button>
+
+        <div class="area-result" id="areaResultDisplay"></div>
+    </div>
+</section>
+
+
+<!-- FAQ Section -->
+<section class="emi-section" id="emiFaqSection">
+    <h4>Frequently asked questions about EMI Calculator</h4>
+    <small class="mt-2">Know what questions the users frequently asks about EMI calculators</small>
+
+    <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+            Q1:Which land measurement units are used in North India?
+        </button>
+        <div class="faq-answer">
+            
+        <p>Some of the popular land measurement units used in North India are Bigha, Biswa, Killa, Ghumaon, Biswansi, Kanal and many more.</p>     </div>
+    </div>
+
+    <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+            Q2: Which land measurement units are used in East India?
+        </button>
+        <div class="faq-answer">
+            <p>
+In East India, people usually use Chatak, Dhur, Kattha, Lacha for land measurement purposes.</p>
+        </div>
+    </div>
+
+    <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+            Q3: Which land measurement units are used in West India?
+        </button>
+        <div class="faq-answer">
+            <p>
+Bigha, Biswa, Biswansi are some of the commonly used land measurement units in West India.
+
+</p>
+        </div>
+    </div>
+    <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+            Q4: Which land measurement units are used in Central India?
+
+        </button>
+        <div class="faq-answer">
+            <p>
+People mostly use Bigha and Kattha in Central India for measuring land parcels.
+
+</p>
+
+        </div>
+    </div>
+</section>
+
+
+{% endblock body %}
+{% block js %}
+<script src="{% static 'properties/main_js/bootstrap.bundle.min.js' %}"></script>
+  <script src="{% static 'properties/main_js/main.js' %}"></script>
+  <script src="{% static 'properties/main_js/emi.js' %}"></script>
+{% endblock js %}
+

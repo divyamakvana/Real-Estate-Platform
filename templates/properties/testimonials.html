@@ -1,0 +1,41 @@
+{% extends 'properties/base.html' %}
+{% load static %}
+
+{% block title %}
+  Testimonials
+{% endblock %}
+
+{% block body %}
+  <div class="container py-5">
+    
+    <h2 class="text-center mb-4">What Our Clients Say</h2>
+    <div class="row test g-4">
+      {% for review in reviews %}
+        <div class="col-md-6 col-lg-4">
+          <div class="card shadow-sm border-0 rounded-3 p-3 h-100">
+            <div class="d-flex align-items-center mb-3">
+              {% if review.profile_image %}
+                <img src="{{ review.profile_image.url }}" alt="{{ review.name }}" class="rounded-circle me-3" width="50" height="50" />
+              {% else %}
+                <img src="{% static 'default-profile.png' %}" alt="Profile" class="rounded-circle me-3" width="50" height="50" />
+              {% endif %}
+              <div>
+                <h6 class="mb-0">{{ review.name }}</h6>
+                <div class="text-warning">
+                  {% for i in '12345' %}
+                    {% if forloop.counter <= review.rating %}
+                      ★
+                    {% else %}
+                      ☆
+                    {% endif %}
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+            <p class="mb-0">{{ review.review|truncatewords:50 }}</p>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+{% endblock %}

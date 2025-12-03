@@ -1,0 +1,265 @@
+{% extends "properties/base.html" %}
+{% load static %}
+
+{% block css %}
+<link href="{% static 'properties/main_css/bootstrap.min.css' %}" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'properties/main_css/style.css' %}" />
+{% endblock css %}
+
+{% block body %}
+<div class="container my-4">
+
+  <!-- Tabs -->
+  <ul class="nav nav-tabs mb-4">
+    <li class="nav-item">
+      <a class="nav-link {% if active_tab == 'SHORTLISTED' %}active{% endif %}"
+         href="?activeTab=SHORTLISTED">Shortlisted</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link {% if active_tab == 'INQUIRY' %}active{% endif %}"
+         href="?activeTab=INQUIRY">Inquiry</a>
+    </li>
+
+    <li class="nav-item">
+      <a class="nav-link {% if active_tab == 'MANAGE INQUIRY' %}active{% endif %}"
+         href="?activeTab=MANAGE INQUIRY">Manage Inquiry</a>
+    </li>
+    
+    <li class="nav-item">
+      <a class="nav-link {% if active_tab == 'RECENT VIEWED' %}active{% endif %}"
+         href="?activeTab=RECENT VIEWED">Recent Viewed</a>
+    </li>
+  </ul>
+
+  {% if active_tab == "SHORTLISTED" %}
+  <!-- Shortlisted Properties -->
+  <h5 class="mb-3">My Shortlisted Properties</h5>
+
+  {% if shortlisted_properties %}
+    <div class="row g-3">
+      {% for property in shortlisted_properties %}
+        <div class="col-md-3">
+          <div class="property-card shadow-sm position-relative">
+            <div class="property-img-wrapper position-relative">
+              {% if property.images.first %}
+                <img src="{{ property.images.first.image.url }}" class="img-fluid" alt="{{ property.title }}">
+              {% else %}
+                <img src="{% static 'properties/images/default-property.jpg' %}" class="img-fluid" alt="No image">
+              {% endif %}
+
+              <button class="shortlist-btn" style="position:absolute; top:10px; right:10px;" data-property-id="{{ property.id }}">
+                <i class="bi bi-heart-fill text-danger fs-3"></i>
+              </button>
+
+              <span class="price-tag">₹ {{ property.display_price}}</span>
+            </div>
+
+            <div class="property-card-body">
+              <a href="{% url 'view_detail' property.id %}" class="stretched-link text-decoration-none text-dark">
+                <h6 class="mb-1 fw-semibold">{{ property.title|truncatechars:40 }}</h6>
+                <p class="mb-1 small text-muted">
+                  {% if property.city %}{{ property.city.name }}{% else %}Unknown{% endif %}, {{ property.location }}
+                </p>
+                <small class="text-muted d-block">
+                  Posted by {{ property.get_listed_by_display }} • {{ property.posted_on|date:"M d, Y" }}
+                </small>
+              </a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="text-center py-5">
+      <img src="{% static 'properties/images/empty-shortlist.png' %}" style="max-height:150px;">
+      <h5>You haven’t shortlisted anything yet!</h5>
+    </div>
+  {% endif %}
+
+  {% elif active_tab == "INQUIRY" %}
+  <!-- Inquiry Tab -->
+  <h5 class="mb-3">My Enquiries</h5>
+
+  {% if inquiries %}
+    <div class="table-responsive">
+      <table class="table table-bordered align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>Property</th>
+            <th>Owner</th>
+            <th>Message</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for inquiry in inquiries %}
+          <tr>
+            <td>
+              <a href="{% url 'view_detail' inquiry.property.id %}" class="text-decoration-none">
+                {{ inquiry.property.property_type|default:"Property" }}
+              </a>
+            </td>
+            <td>{{ inquiry.property.owner.get_full_name|default:inquiry.property.owner.username }}</td>
+            <td>{{ inquiry.message|truncatechars:50 }}</td>
+            <td>{{ inquiry.created_at|date:"M d, Y H:i" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="text-center py-5">
+      <img src="{% static 'properties/images/empty-inquiry.png' %}" style="max-height:150px;">
+      <h5>You haven’t enquired for any property yet!</h5>
+    </div>
+  {% endif %}
+
+
+{% elif active_tab == "MANAGE INQUIRY" %}
+<h5 class="mb-3">Manage Inquiries for Your Properties</h5>
+
+{% if inquiries_received %}
+<div class="table-responsive">
+  <table class="table table-bordered align-middle">
+    <thead class="table-light">
+      <tr>
+        <th>Buyer</th>
+        <th>Phone</th>
+        <th>Property</th>
+        <th>Message</th>
+        <th>Reply</th>
+        <th>Status</th>
+        <th>Date</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for inquiry in inquiries_received %}
+      <tr>
+        <td>{{ inquiry.name }}</td>
+        <td>{{ inquiry.phone }}</td>
+        <td>
+          <a href="{% url 'view_detail' inquiry.property.id %}" class="text-decoration-none">
+            {{ inquiry.property.property_type}}
+          </a>
+        </td>
+        <td>{{ inquiry.message|truncatechars:50 }}</td>
+        <td>
+          {% if not inquiry.owner_replied %}
+          <form method="post" class="d-flex flex-column">
+            {% csrf_token %}
+            <input type="hidden" name="inquiry_id" value="{{ inquiry.id }}">
+            <textarea name="reply_message" class="form-control mb-2" rows="2" required></textarea>
+            <button class="btn btn-primary btn-sm" type="submit">Send Reply</button>
+          </form>
+          {% else %}
+            <div class="text-success">
+              {{ inquiry.reply_message|truncatechars:50 }}
+              <br>
+              <small class="text-muted">Replied on {{ inquiry.replied_at|date:"d M Y H:i" }}</small>
+            </div>
+          {% endif %}
+        </td>
+        <td>
+          {% if inquiry.owner_replied %}
+            <span class="badge bg-success">Replied</span>
+          {% else %}
+            <span class="badge bg-warning">Pending</span>
+          {% endif %}
+        </td>
+        <td>{{ inquiry.created_at|date:"d M Y H:i" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="text-center py-5">
+  <h5>No inquiries received for your properties yet!</h5>
+</div>
+{% endif %}
+
+
+  
+  {% elif active_tab == "RECENT VIEWED" %}
+<!-- Recent Viewed Tab -->
+<h5 class="mb-3">Recently Viewed Properties</h5>
+
+{% if recent_views %}
+  <div class="row g-3">
+    {% for view in recent_views %}
+      <div class="col-md-3">
+        <div class="property-card shadow-sm position-relative">
+          <div class="property-img-wrapper position-relative">
+            {% if view.property.images.first %}
+              <img src="{{ view.property.images.first.image.url }}" class="img-fluid" alt="{{ view.property.title }}">
+            {% else %}
+              <img src="{% static 'properties/images/default-property.jpg' %}" class="img-fluid" alt="No image">
+            {% endif %}
+
+            <span class="price-tag">₹ {{ view.property.display_price}}</span>
+          </div>
+
+          <div class="property-card-body">
+            <a href="{% url 'view_detail' view.property.id %}" class="stretched-link text-decoration-none text-dark">
+             
+              <p class="mb-1 small text-muted">
+                {% if view.property.locality.name %}{{ view.property.locality.city.name }}{% else %}Unknown{% endif %}, {{ view.property.location }}
+              </p>
+              <small class="text-muted d-block">
+                Posted by {{ view.property.get_listed_by_display }} • {{ view.property.posted_on|date:"M d, Y" }}
+              </small>
+            </a>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="text-center py-5">
+    <img src="{% static 'properties/images/empty-recent.png' %}" style="max-height:150px;">
+    <h5>You haven’t viewed any property yet!</h5>
+  </div>
+{% endif %}
+
+  {% endif %}
+
+</div>
+{% endblock %}
+
+{% block js %}
+<script src="{% static 'properties/main_js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'properties/main_js/main.js' %}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+
+  document.querySelectorAll('.shortlist-btn').forEach(btn => {
+    btn.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const propertyId = this.dataset.propertyId;
+
+      fetch("/toggle-shortlist/", {
+        method: "POST",
+        headers: {
+          "X-CSRFToken": csrftoken,
+          "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: "property_id=" + propertyId
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === "removed") {
+          const card = this.closest(".col-md-3");
+          if (card) {
+            card.remove();
+          }
+        }
+      })
+      .catch(err => console.error("Error:", err));
+    });
+  });
+});
+</script>
+{% endblock js %}

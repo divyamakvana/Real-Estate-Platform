@@ -1,0 +1,525 @@
+{% extends "properties/base.html" %}
+
+{% load static %}
+
+{% block style %}
+<link href="{% static 'properties/main_css/bootstrap.min.css' %}" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'properties/main_css/style.css' %}" />
+<style>
+/* Spinner overlay */
+#spinnerOverlay {
+  display: none;
+  position: fixed; top: 0; left: 0;
+  width: 100%; height: 70%;
+  background: rgba(255,255,255,0.8);
+  z-index: 1050;
+  display: flex; justify-content: center; align-items: center;
+}
+.hidden { display: none; }
+</style>
+{% endblock %}
+
+{% block body %}
+
+  <h3 class="mb-1 mx-5 mt-2"><strong>Sell or Rent Property</strong></h3>
+  <h3 class="mb-4 mx-5 mt-2"><strong>Online faster with realestate.com</strong></h3>
+
+  <form method="post" enctype="multipart/form-data" id="propertyForm" action="{% url 'post_property' %}">
+    {% csrf_token %}
+
+    <!-- Step Navigation -->
+    <ul class="nav nav-pills mb-3">
+      <li class="nav-item"><button class="nav-link active" data-bs-toggle="pill" data-bs-target="#step1" type="button">Owner Details</button></li>
+      <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#step2" type="button">Basic Info</button></li>
+      <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#step3" type="button">Location</button></li>
+      <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#step4" type="button">Price & Area</button></li>
+      <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#step5" type="button">Features</button></li>
+      <li class="nav-item"><button class="nav-link" data-bs-toggle="pill" data-bs-target="#step6" type="button">Photos & Description</button></li>
+    </ul>
+
+    <div class="tab-content">
+      <!-- Step 1: Owner -->
+      <div class="tab-pane fade show active" id="step1">
+        <div class="mb-3">
+          <label>Email</label>
+          <input type="email" name="owner_email" class="form-control" required value="{{user.email}}">
+        </div>
+        <div class="mb-3">
+          <label>Mobile Number</label>
+          <input type="text" name="owner_mobile" class="form-control" required pattern="[0-9]{10}" maxlength="10" value="{{user.profile.phone}}">
+        </div>
+        <div class="mb-3">
+          <label>Posting As</label>
+          <select name="listed_by" class="form-select" required>
+            <option value="">Select</option>
+            <option value="owner">Owner</option>
+            <option value="agent">Agent</option>
+            <option value="builder">Builder</option>
+          </select>
+        </div>
+        <button type="button" class="btn btn-primary next-tab">Next</button>
+      </div>
+
+      <!-- Step 2: Basic Info -->
+      <div class="tab-pane fade" id="step2">
+        <div class="mb-3">
+          <label>Property Type</label>
+          <select id="propertyType" name="property_type" class="form-select" required>
+            <option value="">Select</option>
+            <option value="flat">Flat</option>
+            <option value="house">House</option>
+            <option value="land">Land</option>
+            <option value="commercial">Commercial</option>
+          </select>
+        </div>
+        <!-- Flat/House fields -->
+        <div class="mb-3 flat-house hidden">
+          <label>BHK</label>
+          <select name="bhk" class="form-select">
+            <option value="">Select</option>
+            <option value="1bhk">1 BHK</option>
+            <option value="2bhk">2 BHK</option>
+            <option value="3bhk">3 BHK</option>
+            <option value="4bhk+">4 BHK+</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label>Deal Type</label>
+          <select name="deal_type" class="form-select" id="dealTypeSelect">
+            <option value="sale">Sale</option>
+            <option value="rent">Rent</option>
+          </select>
+        </div>
+        <button type="button" class="btn btn-secondary prev-tab">Back</button>
+        <button type="button" class="btn btn-primary next-tab">Next</button>
+      </div>
+
+      <!-- Step 3: Location -->
+      <!-- Step 3: Location -->
+<div class="tab-pane fade" id="step3">
+  <div class="mb-3">
+    <label>City</label>
+    <select name="city" class="form-select" id="city" required>
+      <option value="">Select City</option>
+      {% for city in cities %}
+        <option value="{{ city.id }}">{{ city.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="mb-3">
+    <label>Locality</label>
+    <select name="locality" id="locality" class="form-select" required>
+      <option value="">Select Locality</option>
+    </select>
+  </div>
+  <div class="mb-3">
+  <label>Pincode</label>
+  <input type="text" id="pincode" class="form-control" readonly>
+</div>
+  <button type="button" class="btn btn-secondary prev-tab">Back</button>
+  <button type="button" class="btn btn-primary next-tab">Next</button>
+</div>
+
+
+      <!-- Step 4: Price & Area -->
+<div class="tab-pane fade" id="step4">
+   <!-- Sale Price -->
+  <div class="mb-3" id="salePriceDiv">
+    <label>Price (₹)</label>
+    <input type="number" name="price" class="form-control" placeholder="100000">
+  </div>
+
+  <!-- Rent Per Month -->
+  <div class="mb-3 hidden" id="rentPriceDiv">
+    <label>Rent per Month (₹)</label>
+    <input type="number" name="rent_per_month" class="form-control" placeholder="10000">
+  </div>
+  <div id="depositDiv" class=" mb-3 hidden">
+      <label>Deposit (₹)</label>
+      <input type="number" name="deposit_amount" class="form-control" placeholder="20000">
+    </div>
+
+  <!-- For Flats, Houses, Commercial -->
+  <div class="mb-3 flat-house commercial hidden">
+    <label>Area (sqft)</label>
+    <div class="input-group">
+      <input type="number" name="area" class="form-control" placeholder="500 sqft">
+      <select name="area_unit" class="form-select">
+        <option value="sqft">sqft</option>
+        <option value="sqm">sqm</option>
+        <option value="acre">acre</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- For Land -->
+  <div class="mb-3 land hidden">
+    <label>Plot Area (sqft)</label>
+    <div class="input-group">
+        <input type="number" name="plot_area" class="form-control" placeholder="5 acres">
+        <select name="plot_area_unit" class="form-select">
+          <option value="sqft">sqft</option>
+          <option value="sqm">sqm</option>
+          <option value="acre">acre</option>
+        </select>
+      </div>
+  </div>
+
+  <div class="mb-3 land hidden">
+    <label>Road Access</label>
+    <select name="road_access" class="form-select">
+      <option value="">Select</option>
+      <option value="yes">Yes</option>
+      <option value="no">No</option>
+    </select>
+  </div>
+  
+
+    <div class="mb-3 land hidden">
+      <label>Zoning Type</label>
+      <select name="zoning_type" class="form-select">
+        <option value="">Select Zoning</option>
+        <option value="residential">Residential</option>
+        <option value="commercial">Commercial</option>
+        <option value="mixed">Mixed Use</option>
+        <option value="industrial">Industrial</option>
+      </select>
+    </div>
+
+    <div class="mb-3 land hidden">
+      <label>Ownership Type</label>
+      <select name="ownership_type" class="form-select">
+        <option value="">Select Ownership</option>
+        <option value="freehold">Freehold</option>
+        <option value="leasehold">Leasehold</option>
+        <option value="cooperative">Cooperative</option>
+      </select>
+    </div>
+    
+    <div class="form-check mb-3 land hidden">
+      <input type="checkbox" class="form-check-input" name="boundary_wall" id="boundaryWall" value="1">
+      <label class="form-check-label" for="boundaryWall">Boundary Wall</label>
+    </div>
+  
+
+      <div class="mb-3 land hidden">
+      <label>Lease Duration</label>
+      <select name="lease_duration" class="form-select">
+        <option value="">Select Duration</option>
+        <option value="6_months">6 Months</option>
+        <option value="1_year">1 Year</option>
+        <option value="2_years">2 Years</option>
+        <option value="3_years">3 Years</option>
+        <option value="5_years">5 Years</option>
+      </select>
+    </div>
+  
+  <button type="button" class="btn btn-secondary prev-tab">Back</button>
+  <button type="button" class="btn btn-primary next-tab">Next</button>
+</div>
+
+
+      <!-- Step 5: Features -->
+      <div class="tab-pane fade" id="step5">
+        <!-- Flat/House only -->
+        <div class="mb-3 flat-house hidden">
+          <label>Bedrooms</label>
+          <input type="number" name="bedrooms" class="form-control">
+        </div>
+        <div class="mb-3 flat-house hidden">
+          <label>Bathrooms</label>
+          <input type="number" name="bathrooms" class="form-control">
+        </div>
+        <div class="mb-3 flat-house hidden">
+          <label>Floor Number</label>
+          <input type="number" name="floor_number" class="form-control">
+        </div>
+         <div class="mb-3 flat-house hidden">
+          <label>Total Floor</label>
+          <input type="number" name="total_floors" class="form-control">
+        </div>
+        <div class="mb-3 flat-house commercial hidden">
+          <label>Furnishing</label>
+          <select name="furnishing" class="form-select">
+            <option value="unfurnished">Unfurnished</option>
+            <option value="semi_furnished">Semi-Furnished</option>
+            <option value="furnished">Furnished</option>
+          </select>
+        </div>
+        <div class="mb-3 flat-house commercial hidden">
+          <label>Property Age</label>
+          <select name="property_age" class="form-select">
+            <option value="new">New</option>
+            <option value="0-1">Less than 1 Year</option>
+            <option value="1-5">1-5 Years</option>
+            <option value="5-10">5-10 Years</option>
+            <option value="10+">10+ Years</option>
+          </select>
+        </div>
+        <div class="mb-3 flat-house commercial hidden">
+          <label>Facing</label>
+          <select name="facing" class="form-select">
+            <option value="">Select</option>
+            <option value="north">North</option>
+            <option value="south">South</option>
+            <option value="east">East</option>
+            <option value="west">West</option>
+          </select>
+        </div>
+        <div class="mb-3 commercial hidden">
+          <label>Business Type</label>
+          <input type="text" name="business_type" class="form-control">
+        </div> <div class="mb-3 commercial hidden" id="commercialExtraFields">
+                <label>Seats / Workstations</label>
+                <input type="number" name="seats" class="form-control" placeholder="50">
+              
+            </div>
+        
+        <div class="mb-3">
+          <label>Parking Spaces</label>
+          <input type="number" name="parking" class="form-control">
+        </div>
+        <div class="mb-3">
+          <label>Amenities</label><br>
+          {% for feature in features %}
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" name="features" value="{{ feature.id }}">
+              <label class="form-check-label">{{ feature.name }}</label>
+            </div>
+          {% endfor %}
+        </div>
+          <!-- Predict Price Button -->
+ 
+        <button type="button" class="btn btn-secondary prev-tab">Back</button>
+        <button type="button" class="btn btn-primary next-tab">Next</button>
+      </div>
+
+      <!-- Step 6: Photos & Description -->
+      <!-- Step 6: Review + Prediction -->
+<div class="tab-pane fade" id="step6">
+  <h4 class="fw-bold mb-3">Review Your Property</h4>
+
+  <!-- Review Summary -->
+  <div class="card shadow-sm mb-3">
+    <div class="card-body">
+      <p><strong>City:</strong> <span id="reviewCity"></span></p>
+      <p><strong>Locality:</strong> <span id="reviewLocality"></span></p>
+      <p><strong>Property Type:</strong> <span id="reviewPropertyType"></span></p>
+      <p><strong>BHK:</strong> <span id="reviewBHK"></span></p>
+      <p><strong>Area:</strong> <span id="reviewArea"></span> sqft</p>
+      <p><strong>Bedrooms:</strong> <span id="reviewBedrooms"></span></p>
+      <p><strong>Bathrooms:</strong> <span id="reviewBathrooms"></span></p>
+    </div>
+  </div>
+
+  <!-- Prediction -->
+  <!-- Prediction Section -->
+  <div class="alert alert-info">
+    <h5>Estimated Price</h5>
+    <p id="predictedPriceText" class="fw-bold text-success">
+      Click "Predict Price" to get estimate
+    </p>
+  </div>
+
+  {% comment %} <!-- Predict Price Button -->
+  <button type="button" id="predictPriceBtn" class="btn btpredict_pricen-info mt-2">
+    Predict Price
+  </button> {% endcomment %}
+  
+  <!-- Extra Fields -->
+  <div class="mb-3 mt-3">
+    <label>Description</label>
+    <textarea name="desc" class="form-control" rows="3"></textarea>
+  </div>
+  <div class="mb-3">
+    <label>Upload Images</label>
+    <input type="file" name="images" class="form-control" multiple>
+  </div>
+
+  <button type="button" class="btn btn-secondary prev-tab">Back</button>
+  <button type="submit" class="btn btn-success">Post Property</button>
+</div>
+
+  </form>
+</div>
+
+  <div class="post-guid py-5 bg-light text-center">
+    <strong class="text-primary">HOW TO POST</strong>
+    <h2 class="mb-5">Post Your Property in 3 Simple Steps</h2>
+
+    <div class="row justify-content-center postc">
+        <div class="col-md-4 mb-2">
+            <div class="step-card">
+                <div class="step-icon bg-primary text-white mb-3">
+                    <i class="bi bi-pencil-square"></i>
+                </div>
+                <div class="step-number">01</div>
+                <h5 class="mb-2">Add Details of Your Property</h5>
+                <p class="text-muted">
+                    Tell us the basic details about your property like type, location, number of rooms, etc.
+                </p>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-2">
+            <div class="step-card">
+                <div class="step-icon bg-primary text-white mb-3">
+                    <i class="bi bi-camera-fill"></i>
+                </div>
+                <div class="step-number">02</div>
+                <h5 class="mb-2">Upload Photos of Your Property</h5>
+                <p class="text-muted">
+                    Upload photos of your rooms, kitchen, parking space, and more to attract buyers or renters.
+                </p>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-2">
+            <div class="step-card">
+                <div class="step-icon bg-primary text-white mb-3">
+                    <i class="bi bi-telephone-fill"></i>
+                </div>
+                <div class="step-number">03</div>
+                <h5 class="mb-2">Share Your Contact Details</h5>
+                <p class="text-muted">
+                    Provide your email, phone number, and address so buyers can contact you easily.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row align-items-center postc mb-5">
+  <div class="col-md-6">
+    <h1 class="fw-bold">Recent Posted Property</h1>
+  </div>
+  <div class="col-md-6">
+    <div id="recentPropertyCarousel" class="carousel slide" data-bs-ride="carousel">
+      
+      <!-- Carousel items -->
+      <div class="carousel-inner">
+        {% for prop in property %}
+        <div class="carousel-item {% if forloop.first %}active{% endif %}">
+          <div class="recent p-3 bg-white shadow-sm rounded">
+            <h5 class="mb-1">{{ prop.owner }}</h5>
+            <p class="mb-0 text-muted">
+              Posted a {{ prop.property_type }}, {{ prop.area }} sq.ft. in {{ prop.locality }}
+              <span>{{prop.posted_on|date}}</span>
+            </p>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Dots / Indicators -->
+      <div class="carousel-indicators mt-3">
+        {% for prop in property %}
+        <button type="button" data-bs-target="#recentPropertyCarousel" data-bs-slide-to="{{ forloop.counter0 }}" class="{% if forloop.first %}active{% endif %}" aria-current="{% if forloop.first %}true{% endif %}" aria-label="Slide {{ forloop.counter }}"></button>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+      
+        
+
+
+
+
+
+{% endblock %}
+
+{% block js %}
+{% comment %} <script src="{% static 'properties/main_js/bootstrap.bundle.min.js' %}"></script> {% endcomment %}
+{{ block.super }}
+<script>
+  // Inject localities data for external JS
+  const localitiesData = {
+    {% for city in cities %}
+      "{{ city.id }}": [
+        {% for loc in city.localities.all %}
+          {"id": "{{ loc.id }}", "name": "{{ loc.name }}", "pincode": "{{ loc.pincode }}"},
+        {% endfor %}
+      ],
+    {% endfor %}
+  };
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const predictBtn = document.getElementById("predictPriceBtn");
+    const predictedPriceText = document.getElementById("predictedPriceText");
+
+    // Review spans
+    const reviewCity = document.getElementById("reviewCity");
+    const reviewLocality = document.getElementById("reviewLocality");
+    const reviewPropertyType = document.getElementById("reviewPropertyType");
+    const reviewBHK = document.getElementById("reviewBHK");
+    const reviewArea = document.getElementById("reviewArea");
+    const reviewBedrooms = document.getElementById("reviewBedrooms");
+    const reviewBathrooms = document.getElementById("reviewBathrooms");
+
+    // Function to update review fields
+    function updateReview() {
+        reviewCity.innerText = document.querySelector("select[name='city'] option:checked")?.text || '';
+        reviewLocality.innerText = document.querySelector("select[name='locality'] option:checked")?.text || '';
+        reviewPropertyType.innerText = document.querySelector("select[name='property_type']")?.value || '';
+        reviewBHK.innerText = document.querySelector("select[name='bhk']")?.value || '';
+        reviewArea.innerText = document.querySelector("input[name='area']")?.value || '';
+        reviewBedrooms.innerText = document.querySelector("input[name='bedrooms']")?.value || '';
+        reviewBathrooms.innerText = document.querySelector("input[name='bathrooms']")?.value || '';
+    }
+
+    // Observe Step 6 tab to trigger review update when it becomes visible
+    const step6Tab = document.querySelector("#step6");
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (step6Tab.classList.contains("show")) {
+                updateReview();
+            }
+        });
+    });
+    observer.observe(step6Tab, { attributes: true, attributeFilter: ['class'] });
+
+    // Predict Price button
+    
+});
+</script>
+
+
+
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const dealTypeSelect = document.getElementById("dealTypeSelect");
+    const salePriceDiv = document.getElementById("salePriceDiv");
+    const rentPriceDiv = document.getElementById("rentPriceDiv");
+    const depositDiv = document.getElementById("depositDiv");
+
+    function togglePriceFields() {
+        if (dealTypeSelect.value === "sale") {
+            salePriceDiv.classList.remove("hidden");
+            rentPriceDiv.classList.add("hidden");
+            depositDiv.classList.add("hidden");
+        } else if (dealTypeSelect.value === "rent") {
+            salePriceDiv.classList.add("hidden");
+            rentPriceDiv.classList.remove("hidden");
+            depositDiv.classList.remove("hidden");
+        }
+    }
+
+    // Initial toggle
+    togglePriceFields();
+
+    // Listen for change
+    dealTypeSelect.addEventListener("change", togglePriceFields);
+});
+</script>
+
+
+
+
+
+
+{% endblock %}

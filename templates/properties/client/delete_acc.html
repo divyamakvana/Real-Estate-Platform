@@ -1,0 +1,58 @@
+{% extends "properties/base.html" %}
+{% load static %}
+
+{% block title %}Delete Account | Real Estate{% endblock %}
+{% block style %}
+
+
+  <link href="{% static 'properties/main_css/bootstrap.min.css' %}" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'properties/main_css/style.css' %}" />
+{% endblock %}
+
+{% block body %}
+<div class="container my-5" style="max-width: 680px;">
+  <div class="card shadow-sm border-0">
+    <div class="card-body p-4">
+      <h3 class="text-danger mb-3">Delete your account</h3>
+      <p class="mb-4">
+        This will permanently delete your account and all associated data tied to it.
+        This action <strong>cannot be undone</strong>.
+      </p>
+
+      <form method="POST" action="{% url 'delete_acc' %}">
+        {% csrf_token %}
+
+        <!-- Email or Phone -->
+        <div class="mb-3">
+          <label for="identifier" class="form-label">Email or Phone</label>
+          <input type="text" name="identifier" id="identifier" class="form-control"
+                 placeholder="Enter your email or phone number" required>
+        </div>
+
+        <!-- Password -->
+        <div class="mb-3">
+          <label for="password" class="form-label">Password</label>
+          <input type="password" name="password" id="password" class="form-control"
+                 placeholder="Enter your password" required>
+        </div>
+
+        <!-- Confirm Password -->
+        <div class="mb-3">
+          <label for="confirm_password" class="form-label">Confirm Password</label>
+          <input type="password" name="confirm_password" id="confirm_password" class="form-control"
+                 placeholder="Re-enter your password" required>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="d-flex gap-2">
+          <a href="{% url 'user_profile' %}" class="btn btncancel">Cancel</a>
+          <button type="submit" class="btn btn-danger"
+                  onclick="return confirm('Are you absolutely sure? This cannot be undone.');">
+            Yes, delete my account
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login</title>
+  <link href="{% static 'properties/main_css/bootstrap.min.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'properties/main_css/admin.css' %}" />
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-box">
+      <h2>Admin Login</h2>
+      <form method="post" action="{% url 'login_view' %}">
+        {% csrf_token %}
+        <div class="input-group">
+          <input type="text" name="username" placeholder="Username" required>
+        </div>
+        <div class="input-group">
+          <input type="password" name="password" placeholder="Password" required>
+        </div>
+        <a href="{% url 'admin_password_reset' %}" class="forgot-link">Forgot Password?</a>
+        <button type="submit">Login</button>
+      </form>
+      
+    </div>
+  </div>
+</body>
+</html>
+
+

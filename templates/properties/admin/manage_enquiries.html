@@ -1,0 +1,77 @@
+{% extends 'properties/admin_base.html' %}
+{% block body %}
+<div class="container mt-4">
+  <h3 class="mb-4" style="color: #00A1F1;">Manage Property Enquiries</h3>
+
+  <!-- Search Form -->
+  <form method="get" class="mb-3 d-flex gap-2">
+    <input type="text" name="q" value="{{ search_query }}" class="form-control border-primary" placeholder="Search by property, owner, buyer..." />
+    <button type="submit" class="btn btn-primary-custom" style="width: 100px;">Search</button>
+  </form>
+
+  <!-- Enquiries Table -->
+  <table class="table table-bordered table-striped table-hover">
+    <thead style="background-color: #00A1F1; color: white;">
+      <tr>
+        <th>Buyer Name</th>
+        <th>Phone</th>
+        <th>Property</th>
+        <th>Owner</th>
+        <th>Message</th>
+        <th>Replied</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for enquiry in enquiries %}
+      <tr>
+        <td>{{ enquiry.name }}</td>
+        <td>{{ enquiry.phone }}</td>
+        <td><a href="{% url 'property_detail' enquiry.property.id %}" style="color: #00A1F1;">{{ enquiry.property.property_type|capfirst }}</a></td>
+        <td>{{ enquiry.property.owner.username }}</td>
+        <td>{{ enquiry.message|truncatechars:50 }}</td>
+        <td>
+          {% if enquiry.owner_replied %}
+            <span class="badge badge-primary-custom">Yes</span>
+          {% else %}
+            <span class="badge bg-warning text-dark">No</span>
+          {% endif %}
+        </td>
+        <td>
+          <a href="{% url 'view_enquiry' enquiry.id %}" class="btn btn-primary-custom btn-sm">View</a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="7" class="text-center">No enquiries found.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <!-- Pagination -->
+  <nav>
+    <ul class="pagination justify-content-center">
+      {% if enquiries.has_previous %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ enquiries.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}" style="color: #00A1F1;">Previous</a>
+      </li>
+      {% endif %}
+
+      {% for num in enquiries.paginator.page_range %}
+      <li class="page-item {% if enquiries.number == num %}active{% endif %}">
+        <a class="page-link {% if enquiries.number != num %}text-primary{% endif %}" 
+           href="?page={{ num }}{% if search_query %}&q={{ search_query }}{% endif %}"
+           style="{% if enquiries.number == num %}background-color:#00A1F1; color:white;{% endif %}">{{ num }}</a>
+      </li>
+      {% endfor %}
+
+      {% if enquiries.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ enquiries.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}" style="color: #00A1F1;">Next</a>
+      </li>
+      {% endif %}
+    </ul>
+  </nav>
+</div>
+{% endblock %}

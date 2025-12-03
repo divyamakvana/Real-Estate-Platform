@@ -1,0 +1,95 @@
+{% extends "properties/admin_base.html" %}
+{% load static %}
+
+{% block title %}Manage Users{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+    <h3 class="mb-4" style="color: #00A1F1;">Manage Users</h3>
+
+    <!-- Search Form -->
+    <form method="get" class="mb-3 d-flex" style="gap: 5px;">
+        <input type="text" name="q" value="{{ search_query }}" class="form-control border-primary" placeholder="Search by username, email, or phone">
+        <button type="submit" class="btn" style="background-color: #00A1F1; color: #fff; width: 100px;">Search</button>
+    </form>
+
+    <!-- Users Table -->
+    <table class="table table-striped table-bordered">
+        <thead style="background-color: #00A1F1; color: white;">
+            <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for u in users %}
+            <tr>
+                <td>{{ u.id }}</td>
+                <td>{{ u.user.username }}</td>
+                <td>{{ u.user.email }}</td>
+                <td>{{ u.phone }}</td>
+                <td>{{ u.role|title }}</td>
+                <td>
+                    {% if u.user.is_active %}
+                        <span class="badge" style="background-color: #00A1F1;">Active</span>
+                    {% else %}
+                        <span class="badge bg-danger">Inactive</span>
+                    {% endif %}
+                </td>
+                <td class="d-flex flex-wrap gap-1">
+                    <!-- Role Approval -->
+                    {% if u.status == "pending" %}
+                        <a href="{% url 'approve_user_role' u.user.id %}" class="btn btn-sm" style="background-color: #00A1F1; color: #fff;">Approve</a>
+                        <a href="{% url 'reject_user_role' u.user.id %}" class="btn btn-sm btn-danger">Reject</a>
+                    {% else %}
+                        <!-- Activate / Suspend -->
+                        {% if u.user.is_active %}
+                            <a href="{% url 'suspend_user' u.user.id %}" class="btn btn-sm btn-warning">Suspend</a>
+                        {% else %}
+                            <a href="{% url 'activate_user' u.user.id %}" class="btn btn-sm" style="background-color: #00A1F1; color: #fff;">Activate</a>
+                        {% endif %}
+                    {% endif %}
+
+                    <!-- View User -->
+                    <a href="{% url 'view_user' u.user.id %}" class="btn btn-sm" style="background-color: #00A1F1; color: #fff;">View</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="7" class="text-center">No users found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Pagination -->
+    <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+            {% if users.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ users.previous_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}" style="color: #00A1F1;">Previous</a>
+            </li>
+            {% endif %}
+
+            {% for num in users.paginator.page_range %}
+                <li class="page-item {% if users.number == num %}active{% endif %}">
+                    <a class="page-link {% if users.number != num %}text-primary{% endif %}" 
+                       href="?page={{ num }}{% if search_query %}&q={{ search_query }}{% endif %}"
+                       style="{% if users.number == num %}background-color:#00A1F1; color:white;{% endif %}">{{ num }}</a>
+                </li>
+            {% endfor %}
+
+            {% if users.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ users.next_page_number }}{% if search_query %}&q={{ search_query }}{% endif %}" style="color: #00A1F1;">Next</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+</div>
+{% endblock %}

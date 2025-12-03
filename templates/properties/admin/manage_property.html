@@ -1,0 +1,91 @@
+{% extends "properties/admin_base.html" %}
+{% block body %}
+<div class="container mt-4">
+    <h4 class="mb-4" style="color: #00A1F1;">Manage Properties</h4>
+
+    <!-- Search + Filter -->
+    <form method="get" class="d-flex mb-3 gap-2">
+        <input type="text" name="q" placeholder="Search..." value="{{ search_query }}" class="form-control border-primary">
+        <select name="status" class="form-select" onchange="this.form.submit()">
+            <option value="all" {% if status_filter == 'all' %}selected{% endif %}>All</option>
+            <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+            <option value="approved" {% if status_filter == 'approved' %}selected{% endif %}>Approved</option>
+            <option value="rejected" {% if status_filter == 'rejected' %}selected{% endif %}>Rejected</option>
+        </select>
+        <button type="submit" class="btn" style="background-color: #00A1F1; color: #fff; width: 100px;">Search</button>
+    </form>
+
+    <!-- Properties Table -->
+    <table class="table table-bordered table-hover">
+        <thead style="background-color: #00A1F1; color: white;">
+            <tr>
+                <th>ID</th>
+                <th>Owner</th>
+                <th>City</th>
+                <th>Status</th>
+                <th>Price</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for prop in properties %}
+            <tr>
+                <td>{{ prop.id }}</td>
+                <td>{{ prop.owner.username }}</td>
+                <td>{{ prop.locality.name }}</td>
+                <td>
+                    {% if prop.status == "approved" %}
+                        <span class="badge" style="background-color: #00A1F1;">Approved</span>
+                    {% elif prop.status == "pending" %}
+                        <span class="badge bg-warning text-dark">Pending</span>
+                    {% else %}
+                        <span class="badge bg-danger">Rejected</span>
+                    {% endif %}
+                </td>
+                <td>₹{{ prop.price|floatformat:2 }}</td>
+                <td class="d-flex flex-wrap gap-1">
+                    {% if prop.status == "pending" %}
+                        <a href="{% url 'update_property_status' prop.id 'approved' %}" class="btn btn-sm" style="background-color: #00A1F1; color: #fff;">Approve</a>
+                        <a href="{% url 'update_property_status' prop.id 'rejected' %}" class="btn btn-sm btn-danger">Reject</a>
+                    {% elif prop.status == "approved" %}
+                        <a href="{% url 'update_property_status' prop.id 'rejected' %}" class="btn btn-sm btn-danger">Reject</a>
+                    {% elif prop.status == "rejected" %}
+                        <a href="{% url 'update_property_status' prop.id 'approved' %}" class="btn btn-sm" style="background-color: #00A1F1; color: #fff;">Approve</a>
+                    {% endif %}
+                    <a href="{% url 'property_detail' prop.id %}" class="btn btn-sm" style="background-color: #00A1F1; color: #fff;">View</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="text-center">No properties found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Pagination -->
+    <nav>
+        <ul class="pagination justify-content-center">
+            {% if properties.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ properties.previous_page_number }}&q={{ search_query }}&status={{ status_filter }}" style="color: #00A1F1;">Previous</a>
+            </li>
+            {% endif %}
+
+            {% for num in properties.paginator.page_range %}
+                {% if properties.number == num %}
+                    <li class="page-item active"><span class="page-link" style="background-color:#00A1F1; color:white;">{{ num }}</span></li>
+                {% elif num > properties.number|add:-3 and num < properties.number|add:3 %}
+                    <li class="page-item"><a class="page-link" href="?page={{ num }}&q={{ search_query }}&status={{ status_filter }}" style="color: #00A1F1;">{{ num }}</a></li>
+                {% endif %}
+            {% endfor %}
+
+            {% if properties.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ properties.next_page_number }}&q={{ search_query }}&status={{ status_filter }}" style="color: #00A1F1;">Next</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+</div>
+{% endblock %}

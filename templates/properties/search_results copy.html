@@ -1,0 +1,153 @@
+{% extends "properties/base.html" %}
+{% load static %}
+
+{% block title %}Find Properties{% endblock title %}
+
+{% block style %}
+<link rel="stylesheet" href="{% static 'properties/main_css/style.css' %}">
+{% endblock style %}
+
+{% block body %}
+<div class="search-page-container">
+
+  {% comment %} <!-- 🔹 Sidebar Filters -->
+  <aside class="sidebar shadow-sm mt-2 mb-4" id="filters-sidebar">
+    <form id="filtersForm" method="get" action="{% url 'search_properties' %}">
+
+      <!-- Location at Top -->
+      <div class="filter-group mb-3 location-group">
+        <label class="filter-title">Location</label>
+        <div class="location-input-wrapper">
+          <i class="fas fa-search"></i>
+          <input type="text" class="form-control location-input" name="location"
+                 value="{{ location_query|default:'' }}"
+                 placeholder="Search city, area, or project">
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <!-- Property Type -->
+      <div class="filter-group">
+        <label class="filter-title">Property Type</label>
+        <div class="filter-options">
+          {% for type in property_types %}
+            <input type="radio" class="btn-check" name="property_type"
+                   id="ptype_{{ type }}" value="{{ type }}"
+                   {% if property_type_selected == type %}checked{% endif %}>
+            <label for="ptype_{{ type }}" class="filter-btn">{{ type|title }}</label>
+          {% endfor %}
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <!-- BHK -->
+      {% if deal_type_selected in "sale rent" %}
+      <div class="filter-group">
+        <label class="filter-title">BHK</label>
+        <div class="filter-options">
+          {% for value, label in bhk_choices %}
+            <input type="radio" class="btn-check" name="bhk" id="bhk_{{ value }}"
+                   value="{{ value }}" {% if bhk_selected == value %}checked{% endif %}>
+            <label for="bhk_{{ value }}" class="filter-btn">{{ label }}</label>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <hr class="divider">
+
+      <!-- Status -->
+      {% if deal_type_selected in "sale rent" %}
+      <div class="filter-group">
+        <label class="filter-title">Status</label>
+        <div class="filter-options">
+          <input type="radio" class="btn-check" name="require" id="status_ready"
+                 value="ready" {% if require_selected == "ready" %}checked{% endif %}>
+          <label for="status_ready" class="filter-btn">Ready to Move</label>
+
+          <input type="radio" class="btn-check" name="require" id="status_under"
+                 value="under_construction" {% if require_selected == "under_construction" %}checked{% endif %}>
+          <label for="status_under" class="filter-btn">Under Construction</label>
+
+          <input type="radio" class="btn-check" name="require" id="status_soon"
+                 value="launching_soon" {% if require_selected == "launching_soon" %}checked{% endif %}>
+          <label for="status_soon" class="filter-btn">Launching Soon</label>
+        </div>
+      </div>
+      {% endif %}
+
+      <hr class="divider">
+
+      <!-- Price -->
+      <div class="filter-group">
+        <label class="filter-title">Price Range (₹)</label>
+        <input type="range" class="form-range" id="minPriceSlider" name="min_price"
+               min="0" max="2000000" step="100000"
+               value="{{ min_price|default:'0' }}">
+        <input type="range" class="form-range" id="maxPriceSlider" name="max_price"
+               min="0" max="2000000" step="100000"
+               value="{{ max_price|default:'2000000' }}">
+        <p class="price-display">
+          ₹ <span id="minPriceDisplay">{{ min_price|default:'0' }}</span> –
+          ₹ <span id="maxPriceDisplay">{{ max_price|default:'2000000' }}</span>
+        </p>
+      </div>
+
+      <button type="submit" class="apply-filters-btn mt-3">Apply Filters</button>
+    </form>
+  </aside> {% endcomment %}
+
+  <!-- Results -->
+  <div class="results-container" id="resultsContainer">
+    {% include "properties/partials/ajax_search_properties.html" %}
+    
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <nav aria-label="Search results pagination" class="mt-4">
+      <ul class="pagination justify-content-center">
+
+        <!-- Previous Button -->
+        {% if page_obj.has_previous %}
+          <li class="page-item">
+            <a class="page-link" href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}page={{ page_obj.previous_page_number }}">Prev</a>
+          </li>
+        {% else %}
+          <li class="page-item disabled"><span class="page-link">Prev</span></li>
+        {% endif %}
+
+        <!-- Page Numbers (current ±1) -->
+        {% for num in page_obj.paginator.page_range %}
+          {% if num >= page_obj.number|add:-1 and num <= page_obj.number|add:1 %}
+            {% if num == page_obj.number %}
+              <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+            {% else %}
+              <li class="page-item">
+                <a class="page-link" href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}page={{ num }}">{{ num }}</a>
+              </li>
+            {% endif %}
+          {% endif %}
+        {% endfor %}
+
+        <!-- Next Button -->
+        {% if page_obj.has_next %}
+          <li class="page-item">
+            <a class="page-link" href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}page={{ page_obj.next_page_number }}">Next</a>
+          </li>
+        {% else %}
+          <li class="page-item disabled"><span class="page-link">Next</span></li>
+        {% endif %}
+
+      </ul>
+    </nav>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+  const isAuthenticated = {{ request.user.is_authenticated|yesno:"true,false" }};
+</script>
+{% endblock js %}
